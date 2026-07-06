@@ -672,6 +672,7 @@ textarea { resize: vertical; min-height: 60px; }
 
   <div style="display:flex;gap:10px;margin-top:12px;">
     <button class="btn btn-outline" onclick="routerGo('sync')" style="flex:1;">📤 分享</button>
+    <button class="btn btn-outline" onclick="routerGo('stats')" style="flex:1;">📊 統計</button>
     <button class="btn btn-outline" onclick="routerGo('settings')" style="flex:1;">⚙️ 設定</button>
   </div>
 </div>
@@ -881,6 +882,64 @@ textarea { resize: vertical; min-height: 60px; }
   <button class="btn btn-outline" onclick="routerGo('home')" style="margin-top:8px;">← 返回首頁</button>
 </div>
 
+<!-- ===== Page: Stats（使用統計） ===== -->
+<div class="page" id="pageStats">
+  <div class="home-card">
+    <h2>📊 使用統計</h2>
+    <div class="stats-grid" style="margin-bottom:12px;" id="statsSummary">
+      <div class="stat-item">
+        <div class="stat-number" id="statsAppOpen">—</div>
+        <div class="stat-label">總開啟次數</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="statsDailyOpen">—</div>
+        <div class="stat-label">今日開啟</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="statsPhotoCount">—</div>
+        <div class="stat-label">累積拍照</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="statsEditCount">—</div>
+        <div class="stat-label">編輯次數</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="statsCompleteCount">—</div>
+        <div class="stat-label">完成次數</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-card">
+    <h2>🕐 使用時間分佈</h2>
+    <div id="statsTimeDist" style="display:flex;gap:12px;margin-top:8px;">
+      <div class="stat-item" style="flex:1;">
+        <div class="stat-number" id="statsMorning">—</div>
+        <div class="stat-label">🌅 早上</div>
+      </div>
+      <div class="stat-item" style="flex:1;">
+        <div class="stat-number" id="statsAfternoon">—</div>
+        <div class="stat-label">☀️ 下午</div>
+      </div>
+      <div class="stat-item" style="flex:1;">
+        <div class="stat-number" id="statsEvening">—</div>
+        <div class="stat-label">🌙 晚上</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-card">
+    <h2>📅 每日活躍</h2>
+    <div id="statsDailyTable" style="font-size:13px;color:var(--text-secondary);margin-top:8px;"></div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:12px;">
+    <button class="btn btn-outline" onclick="Analytics.exportStats()" style="flex:1;">📥 匯出 JSON</button>
+    <button class="btn btn-outline" onclick="Analytics.renderStatsPage()" style="flex:1;">🔄 重新整理</button>
+  </div>
+  <button class="btn btn-outline" onclick="routerGo('home')" style="margin-top:8px;">← 返回首頁</button>
+</div>
+
 <!-- ===== Page: Settings (簡易版) ===== -->
 <div class="page" id="pageSettings">
   <div class="home-card">
@@ -938,14 +997,16 @@ let DEVICES_DATA = null;  // loaded devices.json
 let DB = null;            // IndexedDB handle
 
 // ===== IndexedDB 初始化 =====
+// [CFO] 多用戶預留欄位：DB_VERSION=2 新增 userId/familyId 索引
 const DB_NAME = 'EquipmentInspectionDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 function openDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = (e) => {
       const db = e.target.result;
+      const oldVersion = e.oldVersion;
       // Store 1: photoRecords
       if (!db.objectStoreNames.contains('photoRecords')) {
         const store = db.createObjectStore('photoRecords', { keyPath: 'id' });
@@ -954,6 +1015,9 @@ function openDB() {
         store.createIndex('synced', 'synced', { unique: false });
         store.createIndex('deviceName', 'deviceName', { unique: false });
         store.createIndex('restaurant_date', ['restaurantCode', 'date'], { unique: false });
+        // [CFO] 多用戶預留欄位：新增 userId / familyId 索引
+        store.createIndex('userId', 'userId', { unique: false });
+        store.createIndex('familyId', 'familyId', { unique: false });
       }
       // Store 2: syncQueue
       if (!db.objectStoreNames.contains('syncQueue')) {
@@ -962,6 +1026,16 @@ function openDB() {
       // Store 3: appSettings
       if (!db.objectStoreNames.contains('appSettings')) {
         db.createObjectStore('appSettings', { keyPath: 'key' });
+      }
+      // [CFO] 多用戶預留欄位：升版到 v2 時補上索引（既有 store 不會重新執行 createObjectStore）
+      if (oldVersion < 2) {
+        const photoStore = e.target.transaction.objectStore('photoRecords');
+        if (!photoStore.indexNames.contains('userId')) {
+          photoStore.createIndex('userId', 'userId', { unique: false });
+        }
+        if (!photoStore.indexNames.contains('familyId')) {
+          photoStore.createIndex('familyId', 'familyId', { unique: false });
+        }
       }
     };
     req.onsuccess = () => resolve(req.result);
@@ -1050,6 +1124,9 @@ async function initApp() {
   // 載入設定
   await loadSettings();
 
+  // [CFO] Analytics：記錄每日開啟
+  Analytics.trackOpen();
+
   // 更新今日統計
   await updateTodayStats();
 
@@ -1065,7 +1142,7 @@ async function initApp() {
   const hash = location.hash.replace('#', '');
   if (hash) {
     const page = hash.split('?')[0];
-    if (['groups','devices','camera','editor','confirm','sync','settings'].includes(page)) {
+    if (['groups','devices','camera','editor','confirm','sync','settings','stats'].includes(page)) {
       routerGo(page);
     }
   }
@@ -1620,6 +1697,8 @@ function onPhotoTaken(event) {
   };
   reader.readAsDataURL(file);
 }
+// [CFO] Analytics：追蹤拍照次數
+Analytics.trackPhoto();
 
 // ===== 縮圖列渲染（連續拍照模式） =====
 function renderThumbnails() {
@@ -1739,7 +1818,12 @@ async function finishBatch() {
         sequence: photo.sequence,
         synced: false,
         cacheKey: 'photo_' + photo.id,
-        fileSize: (photo.editedBlob || photo.blob) ? (photo.editedBlob || photo.blob).size : 0
+        fileSize: (photo.editedBlob || photo.blob) ? (photo.editedBlob || photo.blob).size : 0,
+        // [CFO] 多用戶預留欄位：未來可切換用戶/家庭群組
+        userId: 'default',
+        familyId: 'family_01',
+        createdAt: Date.now(),
+        updatedAt: Date.now()
       };
 
       // 儲存到 IndexedDB
@@ -1764,7 +1848,10 @@ async function finishBatch() {
         fileName: photo.fileName,
         retryCount: 0,
         lastAttempt: 0,
-        error: ''
+        error: '',
+        // [CFO] 多用戶預留欄位
+        userId: 'default',
+        familyId: 'family_01'
       });
 
       saved++;
@@ -1786,6 +1873,8 @@ async function finishBatch() {
   // 跳回設備列表
   routerGo('devices');
 }
+// [CFO] Analytics：追蹤完成次數
+Analytics.trackComplete();
 
 // ===== 分享照片（Web Share API） =====
 async function shareCurrentPhoto() {
@@ -2151,6 +2240,16 @@ async function loadSettings() {
   const quality = await dbGet('appSettings', 'compressionQuality');
   if (quality) document.getElementById('compressionQuality').value = String(quality.value);
 
+  // [CFO] 多用戶預留欄位：初始化預設用戶設定（未來可在 UI 切換）
+  let currentUser = await dbGet('appSettings', 'currentUserId');
+  if (!currentUser) {
+    await dbSave('appSettings', { key: 'currentUserId', value: 'default' });
+  }
+  let currentFamily = await dbGet('appSettings', 'currentFamilyId');
+  if (!currentFamily) {
+    await dbSave('appSettings', { key: 'currentFamilyId', value: 'family_01' });
+  }
+
   // 最近使用
   const recent = await loadRecentRestaurants();
   renderRecentRestaurants(recent);
@@ -2408,6 +2507,8 @@ async function editorConfirm() {
     routerGo('camera', { preserveBatch: true });
   }, 'image/png');
 }
+// [CFO] Analytics：追蹤編輯次數
+Analytics.trackEdit();
 
 // ===== Canvas 繪圖事件處理 =====
 function getCanvasPoint(clientX, clientY) {
@@ -2647,6 +2748,80 @@ function drawText(x, y, text) {
 
 // ===== 啟動 =====
 document.addEventListener('DOMContentLoaded', initApp);
+
+// ===== Analytics 使用統計模組（CFO 建議） =====
+// [CFO] Analytics：輕量使用統計，資料儲存於 localStorage
+const Analytics = {
+  _getStats() {
+    const raw = localStorage.getItem('analytics_stats');
+    const stats = raw ? JSON.parse(raw) : { appOpen:0, photoCount:0, editCount:0, completeCount:0, dailyLog:{}, timeDist:{morning:0,afternoon:0,evening:0} };
+    return stats;
+  },
+  _saveStats(stats) {
+    localStorage.setItem('analytics_stats', JSON.stringify(stats));
+  },
+  trackOpen() {
+    const stats = this._getStats();
+    stats.appOpen = (stats.appOpen || 0) + 1;
+    const today = new Date().toISOString().slice(0,10);
+    if (!stats.dailyLog) stats.dailyLog = {};
+    stats.dailyLog[today] = (stats.dailyLog[today] || 0) + 1;
+    const h = new Date().getHours();
+    if (h < 12) stats.timeDist.morning = (stats.timeDist.morning || 0) + 1;
+    else if (h < 18) stats.timeDist.afternoon = (stats.timeDist.afternoon || 0) + 1;
+    else stats.timeDist.evening = (stats.timeDist.evening || 0) + 1;
+    this._saveStats(stats);
+  },
+  trackPhoto() {
+    const stats = this._getStats();
+    stats.photoCount = (stats.photoCount || 0) + 1;
+    this._saveStats(stats);
+  },
+  trackEdit() {
+    const stats = this._getStats();
+    stats.editCount = (stats.editCount || 0) + 1;
+    this._saveStats(stats);
+  },
+  trackComplete() {
+    const stats = this._getStats();
+    stats.completeCount = (stats.completeCount || 0) + 1;
+    this._saveStats(stats);
+  },
+  renderStatsPage() {
+    const stats = this._getStats();
+    document.getElementById('statsAppOpen').textContent = stats.appOpen || 0;
+    const today = new Date().toISOString().slice(0,10);
+    document.getElementById('statsDailyOpen').textContent = (stats.dailyLog && stats.dailyLog[today]) || 0;
+    document.getElementById('statsPhotoCount').textContent = stats.photoCount || 0;
+    document.getElementById('statsEditCount').textContent = stats.editCount || 0;
+    document.getElementById('statsCompleteCount').textContent = stats.completeCount || 0;
+    document.getElementById('statsMorning').textContent = (stats.timeDist && stats.timeDist.morning) || 0;
+    document.getElementById('statsAfternoon').textContent = (stats.timeDist && stats.timeDist.afternoon) || 0;
+    document.getElementById('statsEvening').textContent = (stats.timeDist && stats.timeDist.evening) || 0;
+    // 每日活躍表
+    const table = document.getElementById('statsDailyTable');
+    if (stats.dailyLog) {
+      const days = Object.entries(stats.dailyLog).sort((a,b) => b[0].localeCompare(a[0])).slice(0,14);
+      table.innerHTML = '<div style="font-weight:600;margin-bottom:4px;">📅 近 14 天活躍</div>' +
+        days.map(([d,c]) => `<div style="display:flex;justify-content:space-between;padding:2px 0;"><span>${d}</span><span>${c} 次</span></div>`).join('');
+    }
+  },
+  exportStats() {
+    const stats = this._getStats();
+    const blob = new Blob([JSON.stringify(stats, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `analytics_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    showToast('📥 統計資料已匯出');
+  }
+};
+// 頁面載入時自動渲染統計（若在 stats 頁面）
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.location.hash === '#stats' || window.location.pathname.endsWith('stats')) {
+    setTimeout(() => Analytics.renderStatsPage(), 500);
+  }
+});
 </script>
 </body>
 </html>

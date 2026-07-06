@@ -292,8 +292,9 @@ h1 {
    同步匯出頁面 — JavaScript
    ============================================================ */
 
+// [CFO] 多用戶預留欄位：DB_VERSION=2 新增 userId/familyId 索引
 const DB_NAME = 'EquipmentInspectionDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 let DB = null;
 let exportData = null;
 let allRecords = [];
@@ -304,11 +305,27 @@ function openDB() {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = (e) => {
       const db = e.target.result;
+      const oldVersion = e.oldVersion;
       if (!db.objectStoreNames.contains('photoRecords')) {
         const store = db.createObjectStore('photoRecords', { keyPath: 'id' });
         store.createIndex('date', 'date', { unique: false });
         store.createIndex('synced', 'synced', { unique: false });
         store.createIndex('restaurantCode', 'restaurantCode', { unique: false });
+        // [CFO] 多用戶預留欄位
+        store.createIndex('userId', 'userId', { unique: false });
+        store.createIndex('familyId', 'familyId', { unique: false });
+      }
+      // [CFO] 多用戶預留欄位：升版到 v2 時補上索引
+      if (oldVersion < 2) {
+        if (db.objectStoreNames.contains('photoRecords')) {
+          const store = e.target.transaction.objectStore('photoRecords');
+          if (!store.indexNames.contains('userId')) {
+            store.createIndex('userId', 'userId', { unique: false });
+          }
+          if (!store.indexNames.contains('familyId')) {
+            store.createIndex('familyId', 'familyId', { unique: false });
+          }
+        }
       }
     };
     req.onsuccess = () => resolve(req.result);
