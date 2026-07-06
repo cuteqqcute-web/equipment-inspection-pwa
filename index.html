@@ -116,6 +116,29 @@ body {
   color: var(--primary);
 }
 .btn-large { padding: 16px 24px; font-size: 18px; border-radius: 14px; }
+/* 戴手套友善：特大快門按鈕 */
+.camera-shutter {
+  width: 100%;
+  min-height: 120px;
+  font-size: 26px !important;
+  font-weight: 700;
+  padding: 20px 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+  color: white;
+  border: 3px solid #0d47a1;
+  box-shadow: 0 4px 12px rgba(26,115,232,0.4);
+  letter-spacing: 2px;
+  touch-action: manipulation;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+.camera-shutter:active { transform: scale(0.97); box-shadow: 0 2px 6px rgba(26,115,232,0.3); }
+.camera-shutter:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn-small { padding: 8px 14px; font-size: 14px; border-radius: 8px; width: auto; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 /* ===== 表單 ===== */
@@ -705,10 +728,16 @@ textarea { resize: vertical; min-height: 60px; }
     <textarea id="noteInput" placeholder="例如：右側第二爐有異音" rows="2"></textarea>
   </div>
 
-  <button class="btn btn-primary btn-large" id="cameraBtn" onclick="takePhoto()">
+  <button class="camera-shutter" id="cameraBtn" onclick="takePhoto()">
     📷 拍照
   </button>
+
+  <button class="btn btn-outline btn-large" id="albumBtn" onclick="takePhotoFromAlbum()" style="margin-top:8px;font-size:18px;padding:16px;">
+    📂 從相簿選取
+  </button>
+
   <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="onPhotoTaken(event)">
+  <input type="file" id="albumInput" accept="image/*" style="display:none;" onchange="onPhotoTaken(event)">
 
   <div class="photo-preview-area" id="photoPreview">
     <div class="placeholder">
@@ -1354,7 +1383,7 @@ function renderDevices() {
 }
 
 // ===== 拍照頁 =====
-function initCameraPage() {
+function initCameraPage(params) {
   const dev = STATE.deviceInfo;
   if (!dev) { routerGo('devices'); return; }
 
@@ -1362,24 +1391,38 @@ function initCameraPage() {
   document.getElementById('camDevicePath').textContent =
     `${STATE.restaurant.code} › ${STATE.currentGroup} › ${dev.name}`;
 
-  // 重置拍照批次（保留設備資訊）
-  STATE.capturedPhotos = [];
-  STATE.status = 'normal';
-  STATE.statusLabel = '正常';
-  STATE.note = '';
-  document.getElementById('noteInput').value = '';
-  document.getElementById('photoPreview').innerHTML = `
-    <div class="placeholder">
-      <span class="icon">📸</span>
-      點擊上方按鈕拍照
-    </div>`;
+  const preserveBatch = params && params.preserveBatch;
 
-  // 隱藏縮圖區、停用完成按鈕
-  document.getElementById('thumbnailSection').style.display = 'none';
-  document.getElementById('thumbnailStrip').innerHTML = '';
-  document.getElementById('photoCountLabel').textContent = '共 0 張';
-  document.getElementById('finishBtn').disabled = true;
-  document.getElementById('finishBtn').textContent = '✅ 完成儲存（0 張）';
+  if (preserveBatch && STATE.capturedPhotos.length > 0) {
+    // 從編輯器返回時保留批次資料（保留 STATE.capturedPhotos）
+    const last = STATE.capturedPhotos[STATE.capturedPhotos.length - 1];
+    document.getElementById('photoPreview').innerHTML =
+      '<img src="' + last.dataUrl + '" alt="照片預覽">';
+    renderThumbnails();
+    updatePhotoCount();
+    document.getElementById('finishBtn').disabled = false;
+    document.getElementById('finishBtn').textContent = '✅ 完成儲存（' + STATE.capturedPhotos.length + ' 張）';
+    // 保留當前的狀態/備註（不重置）
+  } else {
+    // 重置拍照批次（保留設備資訊）
+    STATE.capturedPhotos = [];
+    STATE.status = 'normal';
+    STATE.statusLabel = '正常';
+    STATE.note = '';
+    document.getElementById('noteInput').value = '';
+    document.getElementById('photoPreview').innerHTML = `
+      <div class="placeholder">
+        <span class="icon">📸</span>
+        點擊上方按鈕拍照
+      </div>`;
+
+    // 隱藏縮圖區、停用完成按鈕
+    document.getElementById('thumbnailSection').style.display = 'none';
+    document.getElementById('thumbnailStrip').innerHTML = '';
+    document.getElementById('photoCountLabel').textContent = '共 0 張';
+    document.getElementById('finishBtn').disabled = true;
+    document.getElementById('finishBtn').textContent = '✅ 完成儲存（0 張）';
+  }
 
   // 渲染狀態選項
   renderStatusOptions();
@@ -1526,6 +1569,23 @@ function takePhoto() {
   input.click();
 }
 
+// 從相簿選取照片
+function takePhotoFromAlbum() {
+  const input = document.getElementById('albumInput');
+  input.click();
+}
+
+// 音量鍵快門（選配功能，不支援就跳過）
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'VolumeUp' || e.key === 'VolumeDown') {
+    // 只在相機頁面時觸發
+    if (document.getElementById('pageCamera').classList.contains('active')) {
+      e.preventDefault();
+      takePhoto();
+    }
+  }
+});
+
 function onPhotoTaken(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -1574,6 +1634,7 @@ function onPhotoTaken(event) {
     document.getElementById('finishBtn').textContent = `✅ 完成儲存（${STATE.capturedPhotos.length} 張）`;
     // 清空相機 input 以便連續拍照
     document.getElementById('cameraInput').value = '';
+    document.getElementById('albumInput').value = '';
 
     // 自動開啟編輯器編輯這張照片
     editorOpen(STATE.capturedPhotos.length - 1);
@@ -2333,19 +2394,8 @@ function editorCancel() {
   const idx = EDITOR.photoIndex;
   if (idx >= 0 && idx < STATE.capturedPhotos.length) {
     STATE.capturedPhotos.splice(idx, 1);
-    renderThumbnails();
-    updatePhotoCount();
-    const btn = document.getElementById('finishBtn');
-    if (STATE.capturedPhotos.length === 0) {
-      btn.disabled = true;
-      btn.textContent = '✅ 完成儲存（0 張）';
-      document.getElementById('photoPreview').innerHTML =
-        '<div class="placeholder"><span class="icon">📸</span>點擊上方按鈕拍照</div>';
-    } else {
-      btn.textContent = '✅ 完成儲存（' + STATE.capturedPhotos.length + ' 張）';
-    }
   }
-  routerGo('camera');
+  routerGo('camera', { preserveBatch: true });
 }
 
 async function editorConfirm() {
@@ -2366,87 +2416,17 @@ async function editorConfirm() {
 
   showToast('⏳ 儲存中...');
 
-  // 產出最終 PNG + 立即存入 DB
+  // 產出最終 PNG，保留在批次中等待「完成儲存」一次寫入 DB
   compositeCanvas.toBlob(async function(blob) {
     photo.editedBlob = blob;
-    photo.editedDataUrl = URL.createObjectURL(blob);
+    const newUrl = URL.createObjectURL(blob);
     photo.originalDataUrl = photo.dataUrl;
-    photo.dataUrl = photo.editedDataUrl;
+    photo.dataUrl = newUrl;
 
-    try {
-      // 建立完整記錄
-      const record = {
-        id: photo.id,
-        restaurantCode: STATE.restaurant.code,
-        restaurantName: STATE.restaurant.name,
-        deviceGroup: STATE.currentGroup,
-        deviceName: STATE.currentDevice,
-        deviceKey: STATE.deviceInfo.key,
-        status: photo.status,
-        statusLabel: photo.statusLabel,
-        abnormalType: photo.abnormalType,
-        note: photo.note,
-        fileName: photo.fileName,
-        date: getDateStr(),
-        timestamp: Date.now(),
-        sequence: photo.sequence,
-        synced: false,
-        cacheKey: 'photo_' + photo.id,
-        fileSize: blob.size
-      };
+    showToast('✅ 已儲存！');
 
-      // 儲存到 IndexedDB
-      await dbSave('photoRecords', record);
-
-      // 快取到 Cache API
-      try {
-        const cache = await caches.open('equipment-inspection-v1');
-        const photoResponse = new Response(blob, {
-          headers: { 'Content-Type': 'image/png' }
-        });
-        await cache.put(record.cacheKey, photoResponse);
-      } catch (e) {
-        console.warn('Cache API 儲存失敗:', e);
-      }
-
-      // 加入同步佇列
-      await dbSave('syncQueue', {
-        id: photo.id,
-        fileName: photo.fileName,
-        retryCount: 0,
-        lastAttempt: 0,
-        error: ''
-      });
-
-      // 從批次中移除（已儲存完成）
-      STATE.capturedPhotos = STATE.capturedPhotos.filter(p => p.id !== photo.id);
-
-      // 更新今日統計
-      await updateTodayStats();
-
-      showToast('✅ 已儲存！');
-
-      // 更新拍照頁面
-      if (STATE.capturedPhotos.length > 0) {
-        const last = STATE.capturedPhotos[STATE.capturedPhotos.length - 1];
-        document.getElementById('photoPreview').innerHTML =
-          '<img src="' + last.dataUrl + '" alt="照片預覽">';
-        document.getElementById('finishBtn').textContent = '✅ 完成儲存（' + STATE.capturedPhotos.length + ' 張）';
-        document.getElementById('finishBtn').disabled = false;
-      } else {
-        document.getElementById('photoPreview').innerHTML =
-          '<div class="placeholder"><span class="icon">📸</span>點擊上方按鈕拍照</div>';
-        document.getElementById('finishBtn').disabled = true;
-        document.getElementById('finishBtn').textContent = '✅ 完成儲存（0 張）';
-      }
-      renderThumbnails();
-      updatePhotoCount();
-
-      routerGo('camera');
-    } catch (e) {
-      console.error('儲存失敗:', e);
-      showToast('❌ 儲存失敗: ' + e.message);
-    }
+    // 回到拍照頁（保留批次資料，由 finishBatch() 統一儲存）
+    routerGo('camera', { preserveBatch: true });
   }, 'image/png');
 }
 
