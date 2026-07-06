@@ -117,28 +117,7 @@ body {
 }
 .btn-large { padding: 16px 24px; font-size: 18px; border-radius: 14px; }
 /* 戴手套友善：特大快門按鈕 */
-.camera-shutter {
-  width: 100%;
-  min-height: 120px;
-  font-size: 26px !important;
-  font-weight: 700;
-  padding: 20px 16px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
-  color: white;
-  border: 3px solid #0d47a1;
-  box-shadow: 0 4px 12px rgba(26,115,232,0.4);
-  letter-spacing: 2px;
-  touch-action: manipulation;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
-}
-.camera-shutter:active { transform: scale(0.97); box-shadow: 0 2px 6px rgba(26,115,232,0.3); }
-.camera-shutter:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
 .btn-small { padding: 8px 14px; font-size: 14px; border-radius: 8px; width: auto; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 /* ===== 表單 ===== */
@@ -728,9 +707,9 @@ textarea { resize: vertical; min-height: 60px; }
     <textarea id="noteInput" placeholder="例如：右側第二爐有異音" rows="2"></textarea>
   </div>
 
-  <button class="camera-shutter" id="cameraBtn" onclick="takePhoto()">
-    📷 拍照
-  </button>
+  <button class="btn btn-primary btn-large" id="cameraBtn" onclick="takePhoto()">
+      📷 拍照
+    </button>
 
   <button class="btn btn-outline btn-large" id="albumBtn" onclick="takePhotoFromAlbum()" style="margin-top:8px;font-size:18px;padding:16px;">
     📂 從相簿選取
