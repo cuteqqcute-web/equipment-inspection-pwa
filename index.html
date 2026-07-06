@@ -602,6 +602,29 @@ textarea { resize: vertical; min-height: 60px; }
   background: var(--card);
   border-top: 1px solid var(--border);
 }
+
+/* ===== Share button on thumbnails ===== */
+.thumbnail-share-btn {
+  position: absolute;
+  bottom: 24px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.85;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: opacity 0.15s;
+}
+.thumbnail-share-btn:active { opacity: 1; }
 </style>
 </head>
 <body>
@@ -646,7 +669,7 @@ textarea { resize: vertical; min-height: 60px; }
   </button>
 
   <div style="display:flex;gap:10px;margin-top:12px;">
-    <button class="btn btn-outline" onclick="routerGo('sync')" style="flex:1;">⚡ 同步</button>
+    <button class="btn btn-outline" onclick="routerGo('sync')" style="flex:1;">📤 分享</button>
     <button class="btn btn-outline" onclick="routerGo('settings')" style="flex:1;">⚙️ 設定</button>
   </div>
 </div>
@@ -708,11 +731,8 @@ textarea { resize: vertical; min-height: 60px; }
     </div>
   </div>
 
-  <!-- 底部操作：分享 + 完成儲存全部照片 -->
+  <!-- 底部操作：完成儲存全部照片 -->
   <div style="display:flex;gap:10px;margin-top:16px;">
-    <button class="btn btn-outline btn-large" id="shareBtn" onclick="shareCurrentPhoto()" disabled style="flex:1;display:none;">
-      📤 分享
-    </button>
     <button class="btn btn-success btn-large" id="finishBtn" onclick="finishBatch()" disabled style="flex:1;">
       ✅ 完成儲存（0 張）
     </button>
@@ -779,6 +799,7 @@ textarea { resize: vertical; min-height: 60px; }
     <!-- Row 3: Action buttons -->
     <div class="editor-actions">
       <button class="btn btn-outline" onclick="editorCancel()" style="flex:1;border-color:var(--danger);color:var(--danger);">✏️ 重新拍照</button>
+      <button class="btn btn-primary" onclick="shareEditorPhoto()" style="flex:1;">📤 分享</button>
       <button class="btn btn-success" onclick="editorConfirm()" style="flex:2;">✅ 確認儲存</button>
     </div>
   </div>
@@ -811,14 +832,14 @@ textarea { resize: vertical; min-height: 60px; }
   </div>
 </div>
 
-<!-- ===== Page: Sync (簡易版) ===== -->
+<!-- ===== Page: Sync (分享到雲端) ===== -->
 <div class="page" id="pageSync">
   <div class="home-card">
-    <h2>⚡ 同步中心</h2>
+    <h2>📤 分享到雲端</h2>
     <div class="stats-grid" style="margin-bottom:12px;">
       <div class="stat-item">
         <div class="stat-number" id="syncPendingCount">0</div>
-        <div class="stat-label">待同步照片</div>
+        <div class="stat-label">待分享照片</div>
       </div>
       <div class="stat-item">
         <div class="stat-number" id="syncTotalCount">0</div>
@@ -826,32 +847,27 @@ textarea { resize: vertical; min-height: 60px; }
       </div>
     </div>
 
-    <div class="form-group">
-      <label>同步方式</label>
-      <select id="syncModeSelect" onchange="onSyncModeChange()">
-        <option value="export">📦 產生匯出檔（metadata.json）</option>
-        <option value="wifi">📡 WiFi 自動同步（需電腦接收端）</option>
-      </select>
-    </div>
-
-    <div id="wifiSettings" style="display:none;">
-      <div class="form-group">
-        <label>電腦 IP 位址</label>
-        <input type="text" id="computerIP" placeholder="例如: 192.168.1.100" value="">
-      </div>
-    </div>
-
-    <button class="btn btn-primary btn-large" id="syncStartBtn" onclick="startSync()">
-      🔄 開始同步
+    <!-- 大按鈕：分享到 Google Drive -->
+    <button class="btn btn-primary btn-large" id="googleDriveShareBtn" onclick="shareToGoogleDrive()" style="font-size:20px;padding:20px;margin-bottom:16px;">
+      📤 分享到 Google Drive
     </button>
+    <p id="shareUnsupportedHint" style="display:none;font-size:13px;color:var(--danger);text-align:center;margin-top:-12px;margin-bottom:16px;">
+      ⚠️ 此瀏覽器不支援 Web Share API，已改為下載方式
+    </p>
 
+    <!-- 進度區域 -->
     <div id="syncProgressArea" style="display:none;margin-top:12px;">
       <div class="progress-bar-wrap">
-        <div class="progress-bar-fill" id="syncProgressFill" style="width:0%;background:var(--primary);"></div>
+        <div class="progress-bar-fill" id="syncProgressFill" style="width:0%;background:var(--success);"></div>
         <div class="progress-bar-text" id="syncProgressText">0%</div>
       </div>
       <div style="font-size:13px;color:var(--text-secondary);text-align:center;margin-top:6px;" id="syncProgressDetail"></div>
     </div>
+
+    <!-- 「產生匯出檔」保留做備用 -->
+    <button class="btn btn-outline" id="exportBtn" onclick="doExportSync()" style="margin-top:4px;">
+      📦 產生匯出檔（metadata.json）
+    </button>
   </div>
 
   <button class="btn btn-outline" onclick="routerGo('home')" style="margin-top:8px;">← 返回首頁</button>
@@ -869,13 +885,6 @@ textarea { resize: vertical; min-height: 60px; }
         <option value="0.6">中等 (60%)</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>🔄 自動同步</label>
-      <select id="autoSyncSetting">
-        <option value="true">開啟</option>
-        <option value="false">關閉</option>
-      </select>
-    </div>
     <button class="btn btn-primary" onclick="saveSettings()">💾 儲存設定</button>
     <button class="btn btn-outline" onclick="clearAllData()" style="margin-top:10px;border-color:var(--danger);color:var(--danger);">🗑️ 清除所有資料</button>
   </div>
@@ -885,7 +894,7 @@ textarea { resize: vertical; min-height: 60px; }
 <!-- ===== 底部操作欄 ===== -->
 <div class="app-footer" id="appFooter">
   <button class="btn btn-outline btn-small" onclick="routerGo('home')">🏠 首頁</button>
-  <button class="btn btn-outline btn-small" onclick="routerGo('sync')">⚡ 同步</button>
+  <button class="btn btn-outline btn-small" onclick="routerGo('sync')">📤 分享</button>
 </div>
 
 <!-- ===== 連線狀態 ===== -->
@@ -1123,7 +1132,7 @@ function routerGo(page, params) {
       document.getElementById('appFooter').classList.remove('show');
       break;
     case 'sync':
-      header.textContent = '⚡ 同步中心';
+      header.textContent = '📤 分享到雲端';
       backBtn.classList.add('show');
       badge.textContent = '';
       document.getElementById('appFooter').classList.add('show');
@@ -1372,15 +1381,6 @@ function initCameraPage() {
   document.getElementById('finishBtn').disabled = true;
   document.getElementById('finishBtn').textContent = '✅ 完成儲存（0 張）';
 
-  // 檢查 Web Share API 支援，決定是否顯示分享按鈕
-  const shareBtn = document.getElementById('shareBtn');
-  if (navigator.canShare && navigator.canShare({ files: [new File([], '')] })) {
-    shareBtn.style.display = 'block';
-    shareBtn.disabled = true;
-  } else {
-    shareBtn.style.display = 'none';
-  }
-
   // 渲染狀態選項
   renderStatusOptions();
 
@@ -1572,8 +1572,6 @@ function onPhotoTaken(event) {
     // 啟用完成按鈕
     document.getElementById('finishBtn').disabled = false;
     document.getElementById('finishBtn').textContent = `✅ 完成儲存（${STATE.capturedPhotos.length} 張）`;
-    updateShareBtnState();
-
     // 清空相機 input 以便連續拍照
     document.getElementById('cameraInput').value = '';
 
@@ -1624,6 +1622,17 @@ function renderThumbnails() {
     };
     card.appendChild(delBtn);
 
+    // 分享按鈕（單張分享）
+    const shareThumbBtn = document.createElement('button');
+    shareThumbBtn.className = 'thumbnail-share-btn';
+    shareThumbBtn.textContent = '📤';
+    shareThumbBtn.title = '分享此照片';
+    shareThumbBtn.onclick = (e) => {
+      e.stopPropagation();
+      shareSinglePhoto(photo);
+    };
+    card.appendChild(shareThumbBtn);
+
     strip.appendChild(card);
   });
 
@@ -1649,7 +1658,6 @@ function deleteCapturedPhoto(id) {
     document.getElementById('finishBtn').disabled = true;
     document.getElementById('finishBtn').textContent = '✅ 完成儲存（0 張）';
     document.getElementById('thumbnailSection').style.display = 'none';
-    updateShareBtnState();
   } else {
     // 顯示最新一張為預覽
     const last = STATE.capturedPhotos[STATE.capturedPhotos.length - 1];
@@ -1657,7 +1665,6 @@ function deleteCapturedPhoto(id) {
     renderThumbnails();
     updatePhotoCount();
     document.getElementById('finishBtn').textContent = `✅ 完成儲存（${STATE.capturedPhotos.length} 張）`;
-    updateShareBtnState();
   }
 }
 
@@ -1728,7 +1735,6 @@ async function finishBatch() {
 
   // 清除批次資料
   STATE.capturedPhotos = [];
-  updateShareBtnState();
 
   // 更新今日統計
   await updateTodayStats();
@@ -1742,13 +1748,6 @@ async function finishBatch() {
 }
 
 // ===== 分享照片（Web Share API） =====
-function updateShareBtnState() {
-  const btn = document.getElementById('shareBtn');
-  if (btn) {
-    btn.disabled = STATE.capturedPhotos.length === 0;
-  }
-}
-
 async function shareCurrentPhoto() {
   const photos = STATE.capturedPhotos;
   if (photos.length === 0) {
@@ -1849,35 +1848,180 @@ async function updateSyncPage() {
   const pending = allRecords.filter(r => !r.synced);
   document.getElementById('syncPendingCount').textContent = pending.length;
   document.getElementById('syncTotalCount').textContent = allRecords.length;
-  onSyncModeChange();
+
+  // 檢查 Web Share API 支援
+  const shareBtn = document.getElementById('googleDriveShareBtn');
+  const hint = document.getElementById('shareUnsupportedHint');
+  const canShare = navigator.canShare && navigator.canShare({ files: [new File([''], 'test.jpg', { type: 'image/jpeg' })] });
+  if (!canShare) {
+    shareBtn.textContent = '📤 下載照片（分享不支援）';
+    hint.style.display = 'block';
+  } else {
+    shareBtn.textContent = '📤 分享到 Google Drive';
+    hint.style.display = 'none';
+  }
 }
 
 function onSyncModeChange() {
-  const mode = document.getElementById('syncModeSelect').value;
-  document.getElementById('wifiSettings').style.display = mode === 'wifi' ? 'block' : 'none';
+  // 已移除 WiFi 同步選項，保留此函式避免錯誤
 }
 
-async function startSync() {
-  const mode = document.getElementById('syncModeSelect').value;
-  const btn = document.getElementById('syncStartBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ 同步中...';
+// ===== 分享到 Google Drive（Web Share API） =====
+async function shareToGoogleDrive() {
+  const allRecords = await dbGetAll('photoRecords');
+  const unsynced = allRecords.filter(r => !r.synced);
 
-  try {
-    if (mode === 'export') {
-      await doExportSync();
-    } else if (mode === 'wifi') {
-      await doWiFiSync();
-    }
-  } catch (e) {
-    showToast('❌ 同步失敗: ' + e.message);
+  if (unsynced.length === 0) {
+    showToast('✅ 沒有待分享的照片');
+    return;
   }
 
-  btn.disabled = false;
-  btn.textContent = '🔄 開始同步';
-  document.getElementById('syncProgressArea').style.display = 'none';
+  // 顯示進度
+  const progressArea = document.getElementById('syncProgressArea');
+  progressArea.style.display = 'block';
+  updateSyncProgress(0, unsynced.length, '準備中...');
+
+  let shared = 0;
+  for (const record of unsynced) {
+    try {
+      // 從 Cache API 讀取照片 blob
+      const cache = await caches.open('equipment-inspection-v1');
+      const cachedResp = await cache.match(record.cacheKey);
+      let photoBlob = null;
+
+      if (cachedResp) {
+        photoBlob = await cachedResp.blob();
+      }
+
+      if (!photoBlob) {
+        console.warn('無法讀取照片:', record.fileName);
+        continue;
+      }
+
+      const fileName = record.fileName || 'photo.jpg';
+      const file = new File([photoBlob], fileName, { type: 'image/jpeg' });
+
+      // 檢查 Web Share API 支援
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: fileName
+          });
+          // 分享成功，標記已同步
+          record.synced = true;
+          await dbSave('photoRecords', record);
+          await dbDelete('syncQueue', record.id);
+          shared++;
+          updateSyncProgress(shared, unsynced.length, `✅ ${record.fileName}`);
+        } catch (e) {
+          if (e.name === 'AbortError') {
+            // 使用者取消，繼續下一張
+            updateSyncProgress(shared, unsynced.length, `⏸️ ${record.fileName} (已跳過)`);
+            continue;
+          }
+          throw e;
+        }
+      } else {
+        // 不支援 Web Share API：降級為下載
+        const url = URL.createObjectURL(photoBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        record.synced = true;
+        await dbSave('photoRecords', record);
+        await dbDelete('syncQueue', record.id);
+        shared++;
+        updateSyncProgress(shared, unsynced.length, `✅ ${record.fileName} (已下載)`);
+      }
+    } catch (e) {
+      updateSyncProgress(shared, unsynced.length, `❌ ${record.fileName} (分享失敗)`);
+      console.warn('分享失敗:', record.fileName, e);
+    }
+  }
+
+  // 隱藏進度
+  setTimeout(() => {
+    document.getElementById('syncProgressArea').style.display = 'none';
+  }, 2000);
+
+  showToast(`✅ 已分享！照片可從 Google Drive 下載到電腦`);
   updateSyncPage();
 }
+
+// ===== 單張照片分享（縮圖列 & 編輯器） =====
+async function shareSinglePhoto(photo) {
+  if (!photo) {
+    showToast('⚠️ 沒有照片可分享');
+    return;
+  }
+
+  const blob = photo.editedBlob || photo.blob || await dataURLToBlob(photo.dataUrl);
+  const fileName = photo.fileName || 'photo.jpg';
+
+  // 確保為 JPEG 格式
+  let shareBlob;
+  if (blob.type === 'image/jpeg') {
+    shareBlob = blob;
+  } else {
+    try {
+      shareBlob = await blobToJPEG(blob);
+    } catch (e) {
+      shareBlob = blob;
+    }
+  }
+
+  const file = new File([shareBlob], fileName, { type: 'image/jpeg' });
+
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: fileName
+      });
+      showToast('✅ 已分享！');
+    } catch (e) {
+      if (e.name !== 'AbortError') {
+        console.warn('分享失敗:', e);
+        showToast('⚠️ 分享失敗');
+      }
+    }
+  } else {
+    // 降級：下載連結
+    const url = URL.createObjectURL(shareBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('✅ 已下載！');
+  }
+}
+
+// ===== 編輯器分享（目前編輯中的照片） =====
+async function shareEditorPhoto() {
+  const photo = STATE.capturedPhotos[EDITOR.photoIndex];
+  if (!photo) {
+    showToast('⚠️ 沒有照片可分享');
+    return;
+  }
+  await shareSinglePhoto(photo);
+}
+
+function updateSyncProgress(current, total, detail) {
+  const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+  document.getElementById('syncProgressFill').style.width = pct + '%';
+  document.getElementById('syncProgressText').textContent = `${current} / ${total} (${pct}%)`;
+  document.getElementById('syncProgressDetail').textContent = detail;
+}
+
 
 async function doExportSync() {
   const allRecords = await dbGetAll('photoRecords');
@@ -1961,87 +2105,11 @@ async function doExportSync() {
   showToast(`✅ 匯出完成！共 ${exported} 張照片`);
 }
 
-async function doWiFiSync() {
-  const ip = document.getElementById('computerIP').value.trim();
-  if (!ip) {
-    showToast('⚠️ 請輸入電腦 IP 位址');
-    throw new Error('IP required');
-  }
-
-  const allRecords = await dbGetAll('photoRecords');
-  const unsynced = allRecords.filter(r => !r.synced);
-
-  if (unsynced.length === 0) {
-    showToast('✅ 沒有待同步的照片');
-    return;
-  }
-
-  const progressArea = document.getElementById('syncProgressArea');
-  progressArea.style.display = 'block';
-
-  let uploaded = 0;
-  for (const record of unsynced) {
-    try {
-      const cache = await caches.open('equipment-inspection-v1');
-      const cachedResp = await cache.match(record.cacheKey);
-      let photoBlob = null;
-
-      if (cachedResp) {
-        photoBlob = await cachedResp.blob();
-      } else if (STATE.photoBlob) {
-        photoBlob = STATE.photoBlob;
-      }
-
-      if (!photoBlob) {
-        console.warn('無法讀取照片:', record.fileName);
-        continue;
-      }
-
-      // 建立 FormData
-      const formData = new FormData();
-      formData.append('file', photoBlob, record.fileName);
-      formData.append('metadata', JSON.stringify(record));
-
-      const resp = await fetch(`http://${ip}:8080/api/upload`, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (resp.ok) {
-        record.synced = true;
-        await dbSave('photoRecords', record);
-        await dbDelete('syncQueue', record.id);
-        uploaded++;
-        updateSyncProgress(uploaded, unsynced.length, `✅ ${record.fileName}`);
-      } else {
-        updateSyncProgress(uploaded, unsynced.length, `❌ ${record.fileName} (${resp.status})`);
-      }
-    } catch (e) {
-      updateSyncProgress(uploaded, unsynced.length, `❌ ${record.fileName} (連線失敗)`);
-      console.warn('上傳失敗:', record.fileName, e);
-    }
-  }
-
-  showToast(`✅ WiFi 同步完成！上傳 ${uploaded}/${unsynced.length} 張`);
-}
-
-function updateSyncProgress(current, total, detail) {
-  const pct = total > 0 ? Math.round((current / total) * 100) : 0;
-  document.getElementById('syncProgressFill').style.width = pct + '%';
-  document.getElementById('syncProgressText').textContent = `${current} / ${total} (${pct}%)`;
-  document.getElementById('syncProgressDetail').textContent = detail;
-}
 
 // ===== 設定頁 =====
 async function loadSettings() {
   const quality = await dbGet('appSettings', 'compressionQuality');
   if (quality) document.getElementById('compressionQuality').value = String(quality.value);
-
-  const autoSync = await dbGet('appSettings', 'autoSync');
-  if (autoSync) document.getElementById('autoSyncSetting').value = String(autoSync.value);
-
-  const ip = await dbGet('appSettings', 'computerIP');
-  if (ip) document.getElementById('computerIP').value = ip.value;
 
   // 最近使用
   const recent = await loadRecentRestaurants();
@@ -2050,8 +2118,6 @@ async function loadSettings() {
 
 async function saveSettings() {
   await dbSave('appSettings', { key: 'compressionQuality', value: parseFloat(document.getElementById('compressionQuality').value) });
-  await dbSave('appSettings', { key: 'autoSync', value: document.getElementById('autoSyncSetting').value === 'true' });
-  await dbSave('appSettings', { key: 'computerIP', value: document.getElementById('computerIP').value.trim() });
   showToast('✅ 設定已儲存');
 }
 
@@ -2278,7 +2344,6 @@ function editorCancel() {
     } else {
       btn.textContent = '✅ 完成儲存（' + STATE.capturedPhotos.length + ' 張）';
     }
-    updateShareBtnState();
   }
   routerGo('camera');
 }
@@ -2374,7 +2439,6 @@ async function editorConfirm() {
         document.getElementById('finishBtn').disabled = true;
         document.getElementById('finishBtn').textContent = '✅ 完成儲存（0 張）';
       }
-      updateShareBtnState();
       renderThumbnails();
       updatePhotoCount();
 
