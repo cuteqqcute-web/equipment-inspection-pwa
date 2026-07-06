@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a73e8">
+<title>設備巡檢 — 同步匯出</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root {
+  --primary: #1a73e8;
+  --success: #34a853;
+  --danger: #ea4335;
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #202124;
+  --text-secondary: #5f6368;
+  --border: #dadce0;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 16px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+h1 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.card h2 { font-size: 16px; color: var(--text-secondary); margin-bottom: 12px; }
+.stats-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.stat-box {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 10px;
+}
+.stat-num { font-size: 28px; font-weight: 700; color: var(--primary); }
+.stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.photo-list { list-style: none; max-height: 300px; overflow-y: auto; }
+.photo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.photo-item:last-child { border-bottom: none; }
+.photo-item .thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  background: #e8e8e8;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.photo-item .info { flex: 1; min-width: 0; }
+.photo-item .info .fn { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.photo-item .info .meta { font-size: 12px; color: var(--text-secondary); }
+.photo-item .status-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+.badge-synced { background: #e6f4ea; color: #137333; }
+.badge-pending { background: #fef7e0; color: #e37400; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  touch-action: manipulation;
+}
+.btn:active { opacity: 0.8; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-success { background: var(--success); color: white; }
+.btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.tab-bar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  color: var(--text-secondary);
+}
+.tab-item.active { border-bottom-color: var(--primary); color: var(--primary); }
+.progress-bar {
+  background: var(--bg);
+  border-radius: 8px;
+  height: 20px;
+  overflow: hidden;
+  margin: 12px 0;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 8px;
+  transition: width 0.3s;
+  min-width: 4px;
+}
+.progress-text {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--text);
+  font-weight: 600;
+}
+.hidden { display: none; }
+.toast {
+  position: fixed;
+  top: calc(20px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  background: #323232;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  max-width: 400px;
+  text-align: center;
+}
+.toast.show { opacity: 1; }
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<h1>📦 同步匯出</h1>
+<p class="subtitle">從設備巡檢 PWA 匯出 metadata.json 與照片</p>
+
+<div class="tab-bar">
+  <div class="tab-item active" onclick="switchTab('export')" id="tabExport">📤 匯出</div>
+  <div class="tab-item" onclick="switchTab('browse')" id="tabBrowse">📋 瀏覽</div>
+</div>
+
+<!-- ===== Tab: 匯出 ===== -->
+<div id="tabContentExport">
+  <div class="card" style="margin-bottom:12px;">
+    <h2>🌐 電腦連線設定</h2>
+    <div style="margin-top:8px;">
+      <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:4px;">電腦 IP 位址（含 port）</label>
+      <input id="serverIP" value="10.150.39.205:8081" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:15px;text-align:center;box-sizing:border-box;">
+      <p style="font-size:12px;color:var(--text-secondary);margin-top:4px;">💡 在電腦上執行 check_ip.bat 查看最新 IP</p>
+    </div>
+  </div>
+  <div class="card">
+    <h2>📊 資料概覽</h2>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num" id="totalPhotos">0</div>
+        <div class="stat-label">全部照片</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="pendingPhotos">0</div>
+        <div class="stat-label">待同步</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="syncedPhotos">0</div>
+        <div class="stat-label">已同步</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⚙️ 匯出設定</h2>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:14px;display:block;margin-bottom:6px;color:var(--text-secondary);">匯出範圍</label>
+      <select id="exportScope" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius);font-size:16px;background:var(--card);-webkit-appearance:none;">
+        <option value="all">全部照片</option>
+        <option value="unsynced" selected>僅待同步照片</option>
+        <option value="today">僅今日照片</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:14px;display:block;margin-bottom:6px;color:var(--text-secondary);">包含照片資料</label>
+      <select id="includePhotos" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:var(--radius);font-size:16px;background:var(--card);-webkit-appearance:none;">
+        <option value="true" selected>✅ 是 — 內嵌 Base64 照片</option>
+        <option value="false">❌ 否 — 僅 metadata（不含照片）</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="startExport()" id="exportBtn">
+    📦 產生匯出檔
+  </button>
+
+  <div id="exportProgress" class="hidden" style="margin-top:12px;">
+    <div class="card">
+      <div class="progress-bar">
+        <div class="progress-fill" id="exportProgressFill" style="width:0%"></div>
+        <div class="progress-text" id="exportProgressText">0%</div>
+      </div>
+      <p style="font-size:13px;color:var(--text-secondary);text-align:center;" id="exportProgressDetail">準備中...</p>
+    </div>
+  </div>
+
+  <div id="exportResult" class="hidden" style="margin-top:12px;">
+    <div class="card" style="border:2px solid var(--success);">
+      <p style="text-align:center;font-size:16px;font-weight:600;color:var(--success);">✅ 匯出完成！</p>
+      <p style="text-align:center;font-size:14px;color:var(--text-secondary);margin-top:6px;" id="exportResultText"></p>
+      <button class="btn btn-success" onclick="downloadMetadata()" style="margin-top:12px;" id="downloadBtn">
+        ⬇️ 下載 metadata.json
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Tab: 瀏覽 ===== -->
+<div id="tabContentBrowse" class="hidden">
+  <div class="card">
+    <h2>📋 照片記錄</h2>
+    <div id="browseFilter" style="margin-bottom:12px;">
+      <select id="browseDateFilter" style="width:100%;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:14px;background:var(--card);-webkit-appearance:none;" onchange="renderBrowseList()">
+        <option value="all">全部日期</option>
+        <option value="today">今日</option>
+        <option value="unsynced">待同步</option>
+      </select>
+    </div>
+    <ul class="photo-list" id="browseList">
+      <li style="text-align:center;padding:20px;color:var(--text-secondary);">載入中...</li>
+    </ul>
+    <p style="text-align:center;font-size:12px;color:var(--text-secondary);margin-top:8px;" id="browseCount"></p>
+  </div>
+</div>
+
+<a href="index.html" class="back-link">← 返回巡檢首頁</a>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   同步匯出頁面 — JavaScript
+   ============================================================ */
+
+const DB_NAME = 'EquipmentInspectionDB';
+const DB_VERSION = 1;
+let DB = null;
+let exportData = null;
+let allRecords = [];
+
+// ===== IndexedDB 開啟 =====
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('photoRecords')) {
+        const store = db.createObjectStore('photoRecords', { keyPath: 'id' });
+        store.createIndex('date', 'date', { unique: false });
+        store.createIndex('synced', 'synced', { unique: false });
+        store.createIndex('restaurantCode', 'restaurantCode', { unique: false });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// ===== DB 查詢 =====
+function dbGetAll(storeName, indexName, value) {
+  return new Promise((resolve, reject) => {
+    const tx = DB.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const source = indexName ? store.index(indexName) : store;
+    const req = indexName ? source.getAll(value) : source.getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// ===== 初始化 =====
+async function init() {
+  try {
+    DB = await openDB();
+    await loadData();
+  } catch (e) {
+    showToast('❌ 無法開啟資料庫: ' + e.message);
+  }
+}
+
+async function loadData() {
+  allRecords = await dbGetAll('photoRecords');
+  updateStats();
+  renderBrowseList();
+}
+
+function updateStats() {
+  const total = allRecords.length;
+  const pending = allRecords.filter(r => !r.synced).length;
+  const synced = allRecords.filter(r => r.synced).length;
+  document.getElementById('totalPhotos').textContent = total;
+  document.getElementById('pendingPhotos').textContent = pending;
+  document.getElementById('syncedPhotos').textContent = synced;
+}
+
+// ===== Tab 切換 =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  document.getElementById('tabContentExport').classList.toggle('hidden', tab !== 'export');
+  document.getElementById('tabContentBrowse').classList.toggle('hidden', tab !== 'browse');
+  if (tab === 'browse') renderBrowseList();
+}
+
+// ===== 瀏覽列表 =====
+async function renderBrowseList() {
+  const filter = document.getElementById('browseDateFilter').value;
+  let list = [...allRecords];
+
+  if (filter === 'today') {
+    const today = getDateStr();
+    list = list.filter(r => r.date === today);
+  } else if (filter === 'unsynced') {
+    list = list.filter(r => !r.synced);
+  }
+
+  // 依時間排序（最新的在前）
+  list.sort((a, b) => b.timestamp - a.timestamp);
+
+  const container = document.getElementById('browseList');
+  if (list.length === 0) {
+    container.innerHTML = '<li style="text-align:center;padding:20px;color:var(--text-secondary);">📭 沒有記錄</li>';
+    document.getElementById('browseCount').textContent = '';
+    return;
+  }
+
+  container.innerHTML = '';
+  for (const record of list.slice(0, 50)) { // 最多顯示 50 筆
+    const li = document.createElement('li');
+    li.className = 'photo-item';
+
+    // 嘗試讀取照片縮圖
+    const thumb = document.createElement('img');
+    thumb.className = 'thumb';
+    thumb.alt = '縮圖';
+    try {
+      const cache = await caches.open('equipment-inspection-v1');
+      const cachedResp = await cache.match(record.cacheKey);
+      if (cachedResp) {
+        const blob = await cachedResp.blob();
+        thumb.src = URL.createObjectURL(blob);
+      } else {
+        thumb.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="48" height="48"%3E%3Crect width="48" height="48" fill="%23e8e8e8"/%3E%3Ctext x="24" y="32" text-anchor="middle" font-size="20"%3E📷%3C/text%3E%3C/svg%3E';
+      }
+    } catch (e) {
+      thumb.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="48" height="48"%3E%3Crect width="48" height="48" fill="%23e8e8e8"/%3E%3Ctext x="24" y="32" text-anchor="middle" font-size="20"%3E📷%3C/text%3E%3C/svg%3E';
+    }
+    li.appendChild(thumb);
+
+    const info = document.createElement('div');
+    info.className = 'info';
+    info.innerHTML = `
+      <div class="fn">${record.fileName}</div>
+      <div class="meta">${record.restaurantCode} · ${record.deviceGroup} · ${record.deviceName}</div>
+    `;
+    li.appendChild(info);
+
+    const badge = document.createElement('span');
+    badge.className = 'status-badge ' + (record.synced ? 'badge-synced' : 'badge-pending');
+    badge.textContent = record.synced ? '已同步' : '待同步';
+    li.appendChild(badge);
+
+    container.appendChild(li);
+  }
+
+  const count = document.getElementById('browseCount');
+  count.textContent = `顯示 ${Math.min(list.length, 50)} / ${list.length} 筆記錄`;
+}
+
+// ===== 匯出功能 =====
+async function startExport() {
+  const btn = document.getElementById('exportBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 匯出中...';
+
+  const progressArea = document.getElementById('exportProgress');
+  progressArea.classList.remove('hidden');
+  document.getElementById('exportResult').classList.add('hidden');
+
+  try {
+    const scope = document.getElementById('exportScope').value;
+    const includePhotos = document.getElementById('includePhotos').value === 'true';
+
+    let records = [...allRecords];
+    if (scope === 'unsynced') {
+      records = records.filter(r => !r.synced);
+    } else if (scope === 'today') {
+      const today = getDateStr();
+      records = records.filter(r => r.date === today);
+    }
+
+    if (records.length === 0) {
+      showToast('📭 沒有符合條件的記錄');
+      btn.disabled = false;
+      btn.textContent = '📦 產生匯出檔';
+      progressArea.classList.add('hidden');
+      return;
+    }
+
+    // 建立 metadata
+    const metadata = {
+      exportVersion: '1.0',
+      exportedAt: new Date().toISOString(),
+      deviceName: navigator.userAgent || 'PWA 手機',
+      totalPhotos: records.length,
+      restaurantCode: records[0].restaurantCode || '',
+      restaurantName: records[0].restaurantName || '',
+      date: getDateStr(),
+      photos: []
+    };
+
+    let processed = 0;
+    for (const record of records) {
+      let photoDataUrl = null;
+
+      if (includePhotos) {
+        try {
+          const cache = await caches.open('equipment-inspection-v1');
+          const cachedResp = await cache.match(record.cacheKey);
+          if (cachedResp) {
+            const blob = await cachedResp.blob();
+            photoDataUrl = await blobToDataURL(blob);
+          }
+        } catch (e) {
+          console.warn('無法讀取照片:', record.fileName);
+        }
+      }
+
+      metadata.photos.push({
+        id: record.id,
+        fileName: record.fileName,
+        deviceGroup: record.deviceGroup,
+        deviceName: record.deviceName,
+        deviceKey: record.deviceKey || '',
+        status: record.status,
+        statusLabel: record.statusLabel,
+        abnormalType: record.abnormalType || '',
+        note: record.note || '',
+        timestamp: record.timestamp,
+        date: record.date,
+        sequence: record.sequence,
+        photoDataUrl: photoDataUrl
+      });
+
+      processed++;
+      const pct = Math.round((processed / records.length) * 100);
+      document.getElementById('exportProgressFill').style.width = pct + '%';
+      document.getElementById('exportProgressText').textContent = `${processed} / ${records.length} (${pct}%)`;
+      document.getElementById('exportProgressDetail').textContent = record.fileName;
+
+      // 讓 UI 更新
+      await sleep(10);
+    }
+
+    // 保存結果
+    exportData = metadata;
+
+    document.getElementById('exportProgressFill').style.width = '100%';
+    document.getElementById('exportProgressText').textContent = `✅ ${records.length} 張`;
+    document.getElementById('exportProgressDetail').textContent = '匯出完成！';
+
+    document.getElementById('exportResult').classList.remove('hidden');
+    document.getElementById('exportResultText').textContent =
+      `共 ${metadata.totalPhotos} 張照片${includePhotos ? '（含 Base64 內嵌）' : '（僅 metadata）'}`;
+
+    showToast(`✅ 匯出完成！共 ${metadata.totalPhotos} 張`);
+
+  } catch (e) {
+    console.error('匯出失敗:', e);
+    showToast('❌ 匯出失敗: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📦 產生匯出檔';
+}
+
+function downloadMetadata() {
+  if (!exportData) {
+    showToast('⚠️ 請先執行匯出');
+    return;
+  }
+
+  const jsonStr = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `metadata_${getDateStr()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // 同時下載所有照片（含 Base64 的 metadata 已包在内）
+  // 如果有照片資料，提示使用者
+  const photoCount = exportData.photos.filter(p => p.photoDataUrl).length;
+  if (photoCount > 0) {
+    showToast(`✅ metadata.json 已下載（內含 ${photoCount} 張 Base64 照片）`);
+  } else {
+    showToast('✅ metadata.json 已下載（無內嵌照片）');
+  }
+}
+
+// ===== 工具函式 =====
+function getDateStr() {
+  const d = new Date();
+  return d.getFullYear() +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    String(d.getDate()).padStart(2, '0');
+}
+
+function blobToDataURL(blob) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ===== 啟動 =====
+document.addEventListener('DOMContentLoaded', init);
+
+// ===== WiFi 上傳功能 =====
+async function uploadPhotos() {
+  const ip = document.getElementById('serverIP')?.value || '192.168.0.225:8081';
+  const btn = document.getElementById('syncBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 上傳中...'; }
+
+  try {
+    const db = await openDB();
+    const tx = db.transaction('photoRecords', 'readonly');
+    const store = tx.objectStore('photoRecords');
+    const allRecords = await new Promise((resolve, reject) => {
+      const req = store.getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+
+    const pending = allRecords.filter(r => !r.synced);
+    if (pending.length === 0) { alert('沒有待同步的照片'); return; }
+
+    const formData = new FormData();
+    pending.forEach((r, i) => {
+      const blob = r.photoBlob ? dataURLToBlob(r.photoDataUrl) : null;
+      if (blob) {
+        const fname = r.restaurant + '_' + r.device + '_' + r.statusLabel + '_' + r.date + '_' + String(i+1).padStart(3,'0') + '.jpg';
+        formData.append('photos', blob, fname);
+      }
+    });
+
+    const res = await fetch('http://' + ip + '/upload', { method: 'POST', body: formData });
+    const result = await res.json();
+    alert('✅ 同步完成! ' + result.count + ' 張照片已傳送');
+
+    // 標記已同步
+    const tx2 = db.transaction('photoRecords', 'readwrite');
+    const store2 = tx2.objectStore('photoRecords');
+    for (const r of pending) {
+      r.synced = true;
+      store2.put(r);
+    }
+    await new Promise(r => tx2.oncomplete = r);
+    location.reload();
+  } catch (e) {
+    alert('❌ 同步失敗: ' + e.message + '\n請確認電腦端 auto_import.py 已啟動');
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '📤 開始同步'; }
+}
+
+function dataURLToBlob(dataURL) {
+  if (!dataURL) return null;
+  const parts = dataURL.split(',');
+  const mime = parts[0].match(/:(.*?);/)[1];
+  const bytes = atob(parts[1]);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+// 綁定上傳按鈕 (若按鈕存在)
+window.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('syncBtn') || document.querySelector('button:contains("開始同步")');
+  if (btn) btn.addEventListener('click', uploadPhotos);
+});
+
+</script>
+</body>
+</html>

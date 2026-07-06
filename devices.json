@@ -1,0 +1,2245 @@
+{
+  "version": "1.0",
+  "generatedAt": "2026-07-06T13:45:00+08:00",
+  "deviceGroups": [
+    {
+      "name": "油炸區",
+      "key": "fry",
+      "icon": "🔥",
+      "description": "油炸/煎烤/加熱設備",
+      "devices": [
+        {
+          "name": "高效預熱機/保溫箱",
+          "key": "preheater_holding_cabinet",
+          "abnormalTypes": [
+            {
+              "key": "異常_密封條破損",
+              "label": "密封條破損",
+              "template": "⚠️ 密封條破損/髒污，建議安排廠商更換",
+              "severity": "high",
+              "action": "叫修更換密封條",
+              "vendor": "益伸/大昌"
+            },
+            {
+              "key": "異常_門無法密合",
+              "label": "門無法密合",
+              "template": "⚠️ 門無法完全密合，熱氣外洩，建議調整門軸或更換墊圈",
+              "severity": "high",
+              "action": "調整門軸/更換墊圈",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_出水異常",
+              "label": "出水異常",
+              "template": "⚠️ 預熱機出水異常/不順，建議檢修排水系統",
+              "severity": "medium",
+              "action": "檢查排水管路",
+              "vendor": "大昌"
+            },
+            {
+              "key": "異常_箱體破損",
+              "label": "箱體破損",
+              "template": "⚠️ 箱體內部破損，建議請廠商修補",
+              "severity": "high",
+              "action": "叫修修補箱體",
+              "vendor": "大昌"
+            }
+          ]
+        },
+        {
+          "name": "炸雞保溫箱",
+          "key": "chicken_holding_cabinet",
+          "abnormalTypes": [
+            {
+              "key": "異常_密封條破損",
+              "label": "密封條破損",
+              "template": "⚠️ 密封條破損，熱氣外洩，建議更換",
+              "severity": "high",
+              "action": "更換密封條",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_風扇髒污",
+              "label": "風扇髒污",
+              "template": "⚠️ 上方風扇髒污，需清潔",
+              "severity": "medium",
+              "action": "清潔上方風扇",
+              "vendor": ""
+            },
+            {
+              "key": "異常_調節閥刻度不正確",
+              "label": "調節閥刻度不正確",
+              "template": "⚠️ 空氣調節閥不在刻度5，請調整至正確位置",
+              "severity": "medium",
+              "action": "調整調節閥至刻度5",
+              "vendor": ""
+            },
+            {
+              "key": "異常_門軸歪斜",
+              "label": "門軸歪斜",
+              "template": "⚠️ 門軸歪斜/缺螺絲，請廠商檢修",
+              "severity": "high",
+              "action": "叫修門軸",
+              "vendor": "匯格"
+            }
+          ]
+        },
+        {
+          "name": "高效能麵包機",
+          "key": "high_perf_toaster",
+          "abnormalTypes": [
+            {
+              "key": "異常_寬度旋鈕錯誤",
+              "label": "寬度旋鈕錯誤",
+              "template": "⚠️ 麵包寬度旋鈕未設定於4，請調整★",
+              "severity": "medium",
+              "action": "調整寬度旋鈕至4",
+              "vendor": ""
+            },
+            {
+              "key": "異常_鐵氟龍破損",
+              "label": "鐵氟龍破損",
+              "template": "⚠️ 鐵氟龍有破損/不完整，建議安排更換",
+              "severity": "high",
+              "action": "更換鐵氟龍",
+              "vendor": "大昌"
+            },
+            {
+              "key": "異常_傳送帶髒污",
+              "label": "傳送帶髒污",
+              "template": "⚠️ 傳送帶髒污，需清潔",
+              "severity": "medium",
+              "action": "清潔傳送帶",
+              "vendor": ""
+            },
+            {
+              "key": "異常_風扇髒污",
+              "label": "風扇髒污",
+              "template": "⚠️ 冷卻風扇(上/下)髒污，需清潔★",
+              "severity": "medium",
+              "action": "清潔冷卻風扇",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "炸爐(炸區&炸雞區)",
+          "key": "fryer_main",
+          "abnormalTypes": [
+            {
+              "key": "異常_瓦斯漏氣",
+              "label": "瓦斯漏氣",
+              "template": "⚠️ 瓦斯管有漏氣現象(位置:____)，須盡速叫修★",
+              "severity": "critical",
+              "action": "立即叫修瓦斯漏氣",
+              "vendor": "益伸/誠品"
+            },
+            {
+              "key": "異常_油網髒污",
+              "label": "油網髒污",
+              "template": "⚠️ 油網/油煙罩清潔口積垢，需加強清潔頻率",
+              "severity": "medium",
+              "action": "加強油網清潔",
+              "vendor": ""
+            },
+            {
+              "key": "異常_背板積垢",
+              "label": "背板積垢",
+              "template": "⚠️ 拖爐檢查背板積垢嚴重，建議安排廠商特清",
+              "severity": "medium",
+              "action": "安排廠商特清背板",
+              "vendor": "誠品"
+            },
+            {
+              "key": "異常_集油槽堵塞",
+              "label": "集油槽堵塞",
+              "template": "⚠️ 集油溝槽/滴油壺堵塞，需疏通",
+              "severity": "medium",
+              "action": "疏通集油溝槽",
+              "vendor": ""
+            },
+            {
+              "key": "異常_油車不潔",
+              "label": "油車不潔",
+              "template": "⚠️ 油車清潔狀況不佳，需整理",
+              "severity": "low",
+              "action": "清潔油車",
+              "vendor": ""
+            },
+            {
+              "key": "異常_大金剛斷裂",
+              "label": "大金剛斷裂",
+              "template": "⚠️ 大金剛架斷裂/上下分離，需焊修或更換",
+              "severity": "high",
+              "action": "叫修焊修大金剛",
+              "vendor": "益伸"
+            }
+          ]
+        },
+        {
+          "name": "炸爐(薯站)",
+          "key": "fryer_potato",
+          "abnormalTypes": [
+            {
+              "key": "異常_瓦斯漏氣",
+              "label": "瓦斯漏氣",
+              "template": "⚠️ 瓦斯管有漏氣現象，須盡速叫修★",
+              "severity": "critical",
+              "action": "立即叫修瓦斯",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_油網髒污",
+              "label": "油網髒污",
+              "template": "⚠️ 油網/清潔口積垢，需加強清潔",
+              "severity": "medium",
+              "action": "加強油網清潔",
+              "vendor": ""
+            },
+            {
+              "key": "異常_背板積垢",
+              "label": "背板積垢",
+              "template": "⚠️ 背板積垢嚴重，建議安排特清",
+              "severity": "medium",
+              "action": "安排特清",
+              "vendor": "誠品"
+            },
+            {
+              "key": "異常_大金剛斷裂",
+              "label": "大金剛斷裂",
+              "template": "⚠️ 大金剛架斷裂，需焊修或更換",
+              "severity": "high",
+              "action": "叫修焊修",
+              "vendor": "益伸"
+            }
+          ]
+        },
+        {
+          "name": "煎爐",
+          "key": "grill",
+          "abnormalTypes": [
+            {
+              "key": "異常_抬板積垢",
+              "label": "抬板積垢",
+              "template": "⚠️ 抬板後方積垢，需安排拖爐清潔",
+              "severity": "medium",
+              "action": "安排煎爐拖爐清潔",
+              "vendor": ""
+            },
+            {
+              "key": "異常_煙罩效能不足",
+              "label": "煙罩效能不足",
+              "template": "⚠️ 排油煙罩吸力不足，需檢查風管/風扇",
+              "severity": "high",
+              "action": "檢查排煙系統",
+              "vendor": "盛翔"
+            },
+            {
+              "key": "異常_瓦斯管問題",
+              "label": "瓦斯管問題",
+              "template": "⚠️ 煎爐瓦斯管/接頭處有異常，請廠商檢修",
+              "severity": "high",
+              "action": "叫修瓦斯管",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_密封條破損",
+              "label": "密封條破損",
+              "template": "⚠️ 煎區密封條斷裂/破損，請廠商更換",
+              "severity": "medium",
+              "action": "叫修更換密封條",
+              "vendor": "益伸/振興"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "冷藏區",
+      "key": "cold",
+      "icon": "❄️",
+      "description": "冰箱/冷藏/冷凍庫",
+      "devices": [
+        {
+          "name": "煎區肉櫃冰箱",
+          "key": "meat_fridge_grill",
+          "abnormalTypes": [
+            {
+              "key": "異常_上蓋未密合",
+              "label": "上蓋未密合",
+              "template": "⚠️ 上蓋無法正常密合，冷氣外洩，需調整",
+              "severity": "high",
+              "action": "調整上蓋",
+              "vendor": ""
+            },
+            {
+              "key": "異常_鰭片髒污",
+              "label": "鰭片髒污",
+              "template": "⚠️ 冷凝器鰭片積灰/髒污，需清潔",
+              "severity": "medium",
+              "action": "清潔冷凝器鰭片",
+              "vendor": ""
+            },
+            {
+              "key": "異常_滴水盤積水",
+              "label": "滴水盤積水",
+              "template": "⚠️ 滴水盤積水/髒污★，需清潔",
+              "severity": "medium",
+              "action": "清潔滴水盤",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "炸區掛式(左)",
+          "key": "wall_fridge_left",
+          "abnormalTypes": [
+            {
+              "key": "異常_門墊圈破損",
+              "label": "門墊圈破損",
+              "template": "⚠️ 門墊圈破損/氣密不足，冷氣外洩，需更換",
+              "severity": "high",
+              "action": "更換門墊圈",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_結霜過多",
+              "label": "結霜過多",
+              "template": "⚠️ 內部結霜過多，需除霜或檢查除霜系統",
+              "severity": "medium",
+              "action": "除霜/檢查除霜系統",
+              "vendor": ""
+            },
+            {
+              "key": "異常_鰭片髒污",
+              "label": "鰭片髒污",
+              "template": "⚠️ 冷凝器鰭片髒污，影響散熱效率，需清潔",
+              "severity": "medium",
+              "action": "清潔冷凝器鰭片",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "工作檯冰箱/炸區掛式(右)",
+          "key": "worktable_fridge_right",
+          "abnormalTypes": [
+            {
+              "key": "異常_門墊圈破損",
+              "label": "門墊圈破損",
+              "template": "⚠️ 門墊圈破損/氣密不足，需更換",
+              "severity": "high",
+              "action": "更換門墊圈",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_結霜",
+              "label": "結霜",
+              "template": "⚠️ 結霜過多，需除霜",
+              "severity": "medium",
+              "action": "除霜",
+              "vendor": ""
+            },
+            {
+              "key": "異常_鰭片髒污",
+              "label": "鰭片髒污",
+              "template": "⚠️ 冷凝器鰭片髒污，需清潔",
+              "severity": "medium",
+              "action": "清潔鰭片",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "調理台下方冰箱",
+          "key": "under_counter_fridge",
+          "abnormalTypes": [
+            {
+              "key": "異常_門墊圈破損",
+              "label": "門墊圈破損",
+              "template": "⚠️ 門墊圈破損/氣密不足，需更換",
+              "severity": "high",
+              "action": "更換門墊圈",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_鰭片髒污",
+              "label": "鰭片髒污",
+              "template": "⚠️ 冷凝器鰭片髒污，需清潔",
+              "severity": "medium",
+              "action": "清潔鰭片",
+              "vendor": ""
+            },
+            {
+              "key": "異常_滴水盤積水",
+              "label": "滴水盤積水",
+              "template": "⚠️ 滴水盤積水★，需清潔",
+              "severity": "medium",
+              "action": "清潔滴水盤",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "服務區冷藏冰箱",
+          "key": "service_area_fridge",
+          "abnormalTypes": [
+            {
+              "key": "異常_門墊圈破損",
+              "label": "門墊圈破損",
+              "template": "⚠️ 門墊圈破損/氣密不足，需更換",
+              "severity": "high",
+              "action": "更換門墊圈",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_結霜",
+              "label": "結霜",
+              "template": "⚠️ 內部結霜過多，需除霜或檢查除霜系統",
+              "severity": "medium",
+              "action": "除霜",
+              "vendor": ""
+            },
+            {
+              "key": "異常_鰭片髒污",
+              "label": "鰭片髒污",
+              "template": "⚠️ 冷凝器鰭片髒污，需清潔",
+              "severity": "medium",
+              "action": "清潔鰭片",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "冷凍庫",
+          "key": "freezer",
+          "abnormalTypes": [
+            {
+              "key": "異常_鰭片結冰",
+              "label": "鰭片結冰",
+              "template": "⚠️ 蒸發器鰭片結冰/髒污，需除霜或檢查除霜系統",
+              "severity": "high",
+              "action": "除霜/檢查除霜定時器",
+              "vendor": ""
+            },
+            {
+              "key": "異常_排水管問題",
+              "label": "排水管問題",
+              "template": "⚠️ 排水管隔熱破損/結冰，需修補隔熱層",
+              "severity": "medium",
+              "action": "修補排水管隔熱層",
+              "vendor": ""
+            },
+            {
+              "key": "異常_門墊圈破損",
+              "label": "門墊圈破損",
+              "template": "⚠️ 庫門墊圈破損/氣密不足，冷氣外洩★",
+              "severity": "high",
+              "action": "更換門墊圈",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_貨物堆疊不當",
+              "label": "貨物堆疊不當",
+              "template": "⚠️ 貨物堆疊過高，離蒸發器不足30cm，需調整",
+              "severity": "medium",
+              "action": "調整貨物堆疊高度",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "冷藏庫",
+          "key": "cooler",
+          "abnormalTypes": [
+            {
+              "key": "異常_鰭片結冰",
+              "label": "鰭片結冰",
+              "template": "⚠️ 蒸發器鰭片結冰/髒污，需除霜",
+              "severity": "high",
+              "action": "除霜",
+              "vendor": ""
+            },
+            {
+              "key": "異常_門墊圈破損",
+              "label": "門墊圈破損",
+              "template": "⚠️ 冷藏庫門墊圈破損，冷氣外洩",
+              "severity": "high",
+              "action": "更換墊圈",
+              "vendor": "益伸"
+            },
+            {
+              "key": "異常_排水管",
+              "label": "排水管",
+              "template": "⚠️ 排水管隔熱破損，需修補",
+              "severity": "medium",
+              "action": "修補隔熱層",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "冷凍薯條分配器",
+          "key": "fries_dispenser",
+          "abnormalTypes": [
+            {
+              "key": "異常_濾網髒污",
+              "label": "濾網髒污",
+              "template": "⚠️ 冷凝器濾網髒污，需清洗（每月）",
+              "severity": "medium",
+              "action": "清洗冷凝器濾網",
+              "vendor": ""
+            },
+            {
+              "key": "異常_門墊圈破損",
+              "label": "門墊圈破損",
+              "template": "⚠️ 門墊圈破損/氣密不足",
+              "severity": "high",
+              "action": "更換墊圈",
+              "vendor": "益伸"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "冷凍製冰",
+      "key": "freeze",
+      "icon": "🧊",
+      "description": "冷凍/製冰/冰淇淋設備",
+      "devices": [
+        {
+          "name": "室外機 冷凍冷藏製冰飲料",
+          "key": "condenser_unit",
+          "abnormalTypes": [
+            {
+              "key": "異常_鰭片髒污",
+              "label": "鰭片髒污",
+              "template": "⚠️ 冷凝器鰭片積灰/髒污，影響散熱效率，需清洗",
+              "severity": "high",
+              "action": "清洗冷凝器鰭片",
+              "vendor": "空調廠商"
+            },
+            {
+              "key": "異常_風扇異常",
+              "label": "風扇異常",
+              "template": "⚠️ 蒸發器風扇運轉異音/不轉，需檢修",
+              "severity": "high",
+              "action": "檢修風扇",
+              "vendor": "大昌"
+            },
+            {
+              "key": "異常_除霜鐘異常",
+              "label": "除霜鐘異常",
+              "template": "⚠️ 除霜鐘設定不正確★，需校准",
+              "severity": "high",
+              "action": "校准除霜鐘",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "聖代機",
+          "key": "sundae_machine",
+          "abnormalTypes": [
+            {
+              "key": "異常_濾網髒污",
+              "label": "濾網髒污",
+              "template": "⚠️ 濾網髒污★，需清潔或更換",
+              "severity": "medium",
+              "action": "清潔/更換濾網",
+              "vendor": ""
+            },
+            {
+              "key": "異常_滴盤髒污",
+              "label": "滴盤髒污",
+              "template": "⚠️ 側/後邊滴盤髒污，需清潔",
+              "severity": "low",
+              "action": "清潔滴盤",
+              "vendor": ""
+            },
+            {
+              "key": "異常_攪拌器晃動",
+              "label": "攪拌器晃動",
+              "template": "⚠️ 攪拌器轉動晃動過大，需檢修",
+              "severity": "medium",
+              "action": "檢修攪拌器",
+              "vendor": "大昌"
+            }
+          ]
+        },
+        {
+          "name": "製冰機",
+          "key": "ice_maker",
+          "abnormalTypes": [
+            {
+              "key": "異常_冰盤髒污",
+              "label": "冰盤髒污",
+              "template": "⚠️ 冰盤四周髒污，需清潔除垢",
+              "severity": "medium",
+              "action": "清潔冰盤",
+              "vendor": ""
+            },
+            {
+              "key": "異常_儲槽髒污",
+              "label": "儲槽髒污",
+              "template": "⚠️ 儲槽髒污，需清潔",
+              "severity": "medium",
+              "action": "清潔儲槽",
+              "vendor": ""
+            },
+            {
+              "key": "異常_冰層異常",
+              "label": "冰層異常",
+              "template": "⚠️ 冰層厚度異常，需調整",
+              "severity": "medium",
+              "action": "調整冰層厚度",
+              "vendor": "大昌"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "空調HVAC",
+      "key": "hvac",
+      "icon": "🌬️",
+      "description": "空調/通風/溫控",
+      "devices": [
+        {
+          "name": "HVAC 室外機",
+          "key": "hvac_outdoor",
+          "abnormalTypes": [
+            {
+              "key": "異常_外部鏽蝕",
+              "label": "外部鏽蝕",
+              "template": "⚠️ 室外機外部有鏽蝕/損壞，需處理",
+              "severity": "medium",
+              "action": "除鏽/修補",
+              "vendor": "空調廠商"
+            },
+            {
+              "key": "異常_面板鬆脫",
+              "label": "面板鬆脫",
+              "template": "⚠️ 面板未正確固定/鬆脫，需鎖緊",
+              "severity": "medium",
+              "action": "固定面板",
+              "vendor": ""
+            },
+            {
+              "key": "異常_鰭片髒污",
+              "label": "鰭片髒污",
+              "template": "⚠️ 室外機鰭片積灰嚴重，需請廠商清洗",
+              "severity": "high",
+              "action": "安排清洗室外機鰭片",
+              "vendor": "空調廠商"
+            }
+          ]
+        },
+        {
+          "name": "HVAC 溫控檢視",
+          "key": "hvac_temp_check",
+          "abnormalTypes": [
+            {
+              "key": "異常_用餐區過冷",
+              "label": "用餐區過冷",
+              "template": "⚠️ 用餐區溫度偏低(____℃)，建議調高溫控設定(目標26℃)★",
+              "severity": "medium",
+              "action": "調整用餐區溫控",
+              "vendor": ""
+            },
+            {
+              "key": "異常_用餐區過熱",
+              "label": "用餐區過熱",
+              "template": "⚠️ 用餐區溫度偏高(____℃)，建議檢查空調運轉",
+              "severity": "medium",
+              "action": "檢查空調",
+              "vendor": ""
+            },
+            {
+              "key": "異常_廚房區過熱",
+              "label": "廚房區過熱",
+              "template": "⚠️ 廚房區溫度偏高(____℃)，目標24℃，需調整★",
+              "severity": "medium",
+              "action": "調整廚房區溫控",
+              "vendor": ""
+            },
+            {
+              "key": "異常_溫控器故障",
+              "label": "溫控器故障",
+              "template": "⚠️ 溫度控制器設定異常/故障，需檢修",
+              "severity": "high",
+              "action": "叫修溫控器",
+              "vendor": "空調廠商"
+            }
+          ]
+        },
+        {
+          "name": "HVAC 濾網",
+          "key": "hvac_filter",
+          "abnormalTypes": [
+            {
+              "key": "異常_回風濾網髒污",
+              "label": "回風濾網髒污",
+              "template": "⚠️ 天花板回風濾網髒污/破損，須清洗/更換（每周）",
+              "severity": "medium",
+              "action": "清洗/更換回風濾網",
+              "vendor": ""
+            },
+            {
+              "key": "異常_空調箱濾網",
+              "label": "空調箱濾網",
+              "template": "⚠️ 空調箱濾網未更換/未填滿濾網架，須立即更換",
+              "severity": "high",
+              "action": "更換空調箱濾網",
+              "vendor": ""
+            },
+            {
+              "key": "異常_外氣入口",
+              "label": "外氣入口",
+              "template": "⚠️ 新鮮空氣入口有異味/阻塞，需清潔",
+              "severity": "medium",
+              "action": "清潔外氣入口",
+              "vendor": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "排汙水處理",
+      "key": "drain",
+      "icon": "💧",
+      "description": "截油/排水/排煙",
+      "devices": [
+        {
+          "name": "排煙設備",
+          "key": "exhaust_hood",
+          "abnormalTypes": [
+            {
+              "key": "異常_風扇異常",
+              "label": "風扇異常",
+              "template": "⚠️ 風扇運轉有異聲，需檢修",
+              "severity": "high",
+              "action": "檢修排油煙風扇",
+              "vendor": "盛翔"
+            },
+            {
+              "key": "異常_帆布破損",
+              "label": "帆布破損",
+              "template": "⚠️ 帆布接頭破損/漏油，需更換",
+              "severity": "high",
+              "action": "更換帆布接頭",
+              "vendor": "盛翔"
+            },
+            {
+              "key": "異常_集油過多",
+              "label": "集油過多",
+              "template": "⚠️ 集油箱外積油嚴重，需安排特清",
+              "severity": "medium",
+              "action": "安排排煙設備特清",
+              "vendor": "盛翔"
+            },
+            {
+              "key": "異常_風罩破洞",
+              "label": "風罩破洞",
+              "template": "⚠️ 風罩有破洞，需修補",
+              "severity": "medium",
+              "action": "修補風罩",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "截油槽",
+          "key": "grease_trap",
+          "abnormalTypes": [
+            {
+              "key": "異常_吸油棉未換",
+              "label": "吸油棉未換",
+              "template": "⚠️ 吸油棉未正確安裝/未更換（每日更換2片）",
+              "severity": "medium",
+              "action": "更換吸油棉",
+              "vendor": ""
+            },
+            {
+              "key": "異常_內部髒污",
+              "label": "內部髒污",
+              "template": "⚠️ 截油槽內部髒污/積油過多，需清潔",
+              "severity": "medium",
+              "action": "清潔截油槽",
+              "vendor": ""
+            },
+            {
+              "key": "異常_戶外阻塞",
+              "label": "戶外阻塞",
+              "template": "⚠️ 戶外截油槽髒污/阻塞，需安排抽肥",
+              "severity": "high",
+              "action": "安排抽肥清潔",
+              "vendor": "環保廠商"
+            }
+          ]
+        },
+        {
+          "name": "截油分配器",
+          "key": "grease_dispenser",
+          "abnormalTypes": [
+            {
+              "key": "異常_化油劑不足",
+              "label": "化油劑不足",
+              "template": "⚠️ 化油劑不足，需補充",
+              "severity": "medium",
+              "action": "補充化油劑",
+              "vendor": ""
+            },
+            {
+              "key": "異常_分配器故障",
+              "label": "分配器故障",
+              "template": "⚠️ 分配器測試異常★，無法正常運作，需檢修",
+              "severity": "high",
+              "action": "檢修分配器",
+              "vendor": "廠商"
+            },
+            {
+              "key": "異常_軟管脫落",
+              "label": "軟管脫落",
+              "template": "⚠️ 分配器軟管未正確安裝/脫落，需重新安裝",
+              "severity": "medium",
+              "action": "重新安裝軟管",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "陰井",
+          "key": "sump_pit",
+          "abnormalTypes": [
+            {
+              "key": "異常_浮油過多",
+              "label": "浮油過多",
+              "template": "⚠️ 陰井內部浮油/垃圾過多，需清潔",
+              "severity": "medium",
+              "action": "清潔陰井",
+              "vendor": ""
+            },
+            {
+              "key": "異常_水管阻塞",
+              "label": "水管阻塞",
+              "template": "⚠️ 連通水管阻塞，需疏通",
+              "severity": "high",
+              "action": "疏通連通管",
+              "vendor": "環保廠商"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "清洗設備",
+      "key": "clean",
+      "icon": "🧼",
+      "description": "清洗/廚房設備",
+      "devices": [
+        {
+          "name": "清洗機",
+          "key": "dishwasher",
+          "abnormalTypes": [
+            {
+              "key": "異常_淋臂水垢",
+              "label": "淋臂水垢",
+              "template": "⚠️ 淋臂卡水垢，需除垢清潔",
+              "severity": "medium",
+              "action": "清潔淋臂除垢",
+              "vendor": ""
+            },
+            {
+              "key": "異常_濾板髒污",
+              "label": "濾板髒污",
+              "template": "⚠️ 濾板/過濾網髒污，需清潔",
+              "severity": "medium",
+              "action": "清潔濾板",
+              "vendor": ""
+            },
+            {
+              "key": "異常_滑門未關",
+              "label": "滑門未關",
+              "template": "⚠️ 待機時滑門未關閉至指定高度",
+              "severity": "low",
+              "action": "關閉滑門",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "照明&廚房設備",
+          "key": "lighting_kitchen",
+          "abnormalTypes": [
+            {
+              "key": "異常_開關機表未更新",
+              "label": "開關機表未更新",
+              "template": "⚠️ 設備開關機時間表不是最新/未張貼",
+              "severity": "medium",
+              "action": "更新並張貼開關機表",
+              "vendor": ""
+            },
+            {
+              "key": "異常_管理組不了解",
+              "label": "管理組不了解",
+              "template": "⚠️ 管理組不了解開關機時間表，需重新教育訓練",
+              "severity": "medium",
+              "action": "安排教育訓練",
+              "vendor": ""
+            },
+            {
+              "key": "異常_設備未按時開關",
+              "label": "設備未按時開關",
+              "template": "⚠️ 尖峰時段外設備未關閉/未符合開關機表",
+              "severity": "medium",
+              "action": "調整設備開關機",
+              "vendor": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "刀具器具",
+      "key": "tool",
+      "icon": "🔪",
+      "description": "刀具/切片/開罐",
+      "devices": [
+        {
+          "name": "開罐器",
+          "key": "can_opener",
+          "abnormalTypes": [
+            {
+              "key": "異常_刀片髒污",
+              "label": "刀片髒污",
+              "template": "⚠️ 刀片/齒輪髒污，需清潔",
+              "severity": "low",
+              "action": "清潔刀片齒輪",
+              "vendor": ""
+            },
+            {
+              "key": "異常_開罐不良",
+              "label": "開罐不良",
+              "template": "⚠️ 試開後上蓋未完全切割/開罐不順，需更換刀片組",
+              "severity": "medium",
+              "action": "更換刀片組",
+              "vendor": "振興"
+            },
+            {
+              "key": "異常_推把鬆脫",
+              "label": "推把鬆脫",
+              "template": "⚠️ 開罐器推把鬆脫，需鎖緊或更換",
+              "severity": "medium",
+              "action": "鎖緊/更換推把",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "蕃茄切片器",
+          "key": "tomato_slicer",
+          "abnormalTypes": [
+            {
+              "key": "異常_缺止滑墊",
+              "label": "缺止滑墊",
+              "template": "⚠️ 缺止滑墊，需訂購補齊",
+              "severity": "medium",
+              "action": "訂購止滑墊",
+              "vendor": "振興"
+            },
+            {
+              "key": "異常_缺插銷",
+              "label": "缺插銷",
+              "template": "⚠️ 缺插銷/插銷脫落，需訂購更換",
+              "severity": "medium",
+              "action": "訂購插銷",
+              "vendor": "振興"
+            },
+            {
+              "key": "異常_刀片變形",
+              "label": "刀片變形",
+              "template": "⚠️ 刀片變形/不完整，需更換",
+              "severity": "high",
+              "action": "更換刀片",
+              "vendor": "振興"
+            },
+            {
+              "key": "異常_缺件",
+              "label": "缺件",
+              "template": "⚠️ 番茄切片器缺件(____)，請訂購補齊",
+              "severity": "medium",
+              "action": "訂購缺件",
+              "vendor": "振興"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "安全偵測",
+      "key": "safety",
+      "icon": "⚠️",
+      "description": "瓦斯/CO2/病媒防治",
+      "devices": [
+        {
+          "name": "CO2 偵測器",
+          "key": "co2_detector",
+          "abnormalTypes": [
+            {
+              "key": "異常_無亮燈",
+              "label": "無亮燈",
+              "template": "⚠️ CO2偵測器無亮燈號，請廠商檢查",
+              "severity": "critical",
+              "action": "叫修CO2偵測器",
+              "vendor": "廠商"
+            },
+            {
+              "key": "異常_未維護",
+              "label": "未維護",
+              "template": "⚠️ CO2偵測器未定期維護，需安排",
+              "severity": "medium",
+              "action": "安排定期維護",
+              "vendor": ""
+            },
+            {
+              "key": "異常_員工不了解",
+              "label": "員工不了解",
+              "template": "⚠️ 員工不了解CO2警報器作用，需教育訓練",
+              "severity": "medium",
+              "action": "安排員工教育訓練",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "瓦斯遮斷閥",
+          "key": "gas_shutoff",
+          "abnormalTypes": [
+            {
+              "key": "異常_無亮燈",
+              "label": "無亮燈",
+              "template": "⚠️ 瓦斯警報器無亮燈號，請廠商檢修★",
+              "severity": "critical",
+              "action": "立即叫修瓦斯警報器",
+              "vendor": "弘輝"
+            },
+            {
+              "key": "異常_遮斷閥異常",
+              "label": "遮斷閥異常",
+              "template": "⚠️ 瓦斯遮斷閥測試異常★，無法正常作動，須盡速叫修",
+              "severity": "critical",
+              "action": "立即叫修遮斷閥",
+              "vendor": "弘輝"
+            },
+            {
+              "key": "異常_BYPASS未關",
+              "label": "BYPASS未關",
+              "template": "⚠️ BY PASS開關未關閉★，需立即關閉",
+              "severity": "high",
+              "action": "關閉BY PASS開關",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "病媒",
+          "key": "pest_control",
+          "abnormalTypes": [
+            {
+              "key": "異常_捕蠅燈異常",
+              "label": "捕蠅燈異常",
+              "template": "⚠️ 捕蠅燈未正常運作，需更換燈管/檢修",
+              "severity": "medium",
+              "action": "更換捕蠅燈管/檢修",
+              "vendor": ""
+            },
+            {
+              "key": "異常_環境髒污",
+              "label": "環境髒污",
+              "template": "⚠️ 飲料機後方/儲冰槽後方髒污，需加強清潔",
+              "severity": "medium",
+              "action": "加強環境清潔",
+              "vendor": ""
+            },
+            {
+              "key": "異常_門窗破損",
+              "label": "門窗破損",
+              "template": "⚠️ 門/窗密合不良，有病媒侵入風險，需修補",
+              "severity": "high",
+              "action": "修補門窗縫隙",
+              "vendor": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "其他",
+      "key": "other",
+      "icon": "📋",
+      "description": "其他/資料整理",
+      "devices": [
+        {
+          "name": "其他",
+          "key": "other",
+          "abnormalTypes": [
+            {
+              "key": "異常_有建議事項",
+              "label": "有建議事項",
+              "template": "📝 觀察建議：____",
+              "severity": "low",
+              "action": "依建議事項處理",
+              "vendor": ""
+            }
+          ]
+        },
+        {
+          "name": "資料整理",
+          "key": "documentation",
+          "abnormalTypes": []
+        }
+      ]
+    }
+  ],
+  "devices": {
+    "高效預熱機/保溫箱": {
+      "key": "preheater_holding_cabinet",
+      "group": "油炸區",
+      "groupIcon": "🔥",
+      "abnormalTypes": [
+        {
+          "key": "異常_密封條破損",
+          "label": "密封條破損",
+          "template": "⚠️ 密封條破損/髒污，建議安排廠商更換",
+          "severity": "high",
+          "action": "叫修更換密封條",
+          "vendor": "益伸/大昌"
+        },
+        {
+          "key": "異常_門無法密合",
+          "label": "門無法密合",
+          "template": "⚠️ 門無法完全密合，熱氣外洩，建議調整門軸或更換墊圈",
+          "severity": "high",
+          "action": "調整門軸/更換墊圈",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_出水異常",
+          "label": "出水異常",
+          "template": "⚠️ 預熱機出水異常/不順，建議檢修排水系統",
+          "severity": "medium",
+          "action": "檢查排水管路",
+          "vendor": "大昌"
+        },
+        {
+          "key": "異常_箱體破損",
+          "label": "箱體破損",
+          "template": "⚠️ 箱體內部破損，建議請廠商修補",
+          "severity": "high",
+          "action": "叫修修補箱體",
+          "vendor": "大昌"
+        }
+      ]
+    },
+    "炸雞保溫箱": {
+      "key": "chicken_holding_cabinet",
+      "group": "油炸區",
+      "groupIcon": "🔥",
+      "abnormalTypes": [
+        {
+          "key": "異常_密封條破損",
+          "label": "密封條破損",
+          "template": "⚠️ 密封條破損，熱氣外洩，建議更換",
+          "severity": "high",
+          "action": "更換密封條",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_風扇髒污",
+          "label": "風扇髒污",
+          "template": "⚠️ 上方風扇髒污，需清潔",
+          "severity": "medium",
+          "action": "清潔上方風扇",
+          "vendor": ""
+        },
+        {
+          "key": "異常_調節閥刻度不正確",
+          "label": "調節閥刻度不正確",
+          "template": "⚠️ 空氣調節閥不在刻度5，請調整至正確位置",
+          "severity": "medium",
+          "action": "調整調節閥至刻度5",
+          "vendor": ""
+        },
+        {
+          "key": "異常_門軸歪斜",
+          "label": "門軸歪斜",
+          "template": "⚠️ 門軸歪斜/缺螺絲，請廠商檢修",
+          "severity": "high",
+          "action": "叫修門軸",
+          "vendor": "匯格"
+        }
+      ]
+    },
+    "高效能麵包機": {
+      "key": "high_perf_toaster",
+      "group": "油炸區",
+      "groupIcon": "🔥",
+      "abnormalTypes": [
+        {
+          "key": "異常_寬度旋鈕錯誤",
+          "label": "寬度旋鈕錯誤",
+          "template": "⚠️ 麵包寬度旋鈕未設定於4，請調整★",
+          "severity": "medium",
+          "action": "調整寬度旋鈕至4",
+          "vendor": ""
+        },
+        {
+          "key": "異常_鐵氟龍破損",
+          "label": "鐵氟龍破損",
+          "template": "⚠️ 鐵氟龍有破損/不完整，建議安排更換",
+          "severity": "high",
+          "action": "更換鐵氟龍",
+          "vendor": "大昌"
+        },
+        {
+          "key": "異常_傳送帶髒污",
+          "label": "傳送帶髒污",
+          "template": "⚠️ 傳送帶髒污，需清潔",
+          "severity": "medium",
+          "action": "清潔傳送帶",
+          "vendor": ""
+        },
+        {
+          "key": "異常_風扇髒污",
+          "label": "風扇髒污",
+          "template": "⚠️ 冷卻風扇(上/下)髒污，需清潔★",
+          "severity": "medium",
+          "action": "清潔冷卻風扇",
+          "vendor": ""
+        }
+      ]
+    },
+    "炸爐(炸區&炸雞區)": {
+      "key": "fryer_main",
+      "group": "油炸區",
+      "groupIcon": "🔥",
+      "abnormalTypes": [
+        {
+          "key": "異常_瓦斯漏氣",
+          "label": "瓦斯漏氣",
+          "template": "⚠️ 瓦斯管有漏氣現象(位置:____)，須盡速叫修★",
+          "severity": "critical",
+          "action": "立即叫修瓦斯漏氣",
+          "vendor": "益伸/誠品"
+        },
+        {
+          "key": "異常_油網髒污",
+          "label": "油網髒污",
+          "template": "⚠️ 油網/油煙罩清潔口積垢，需加強清潔頻率",
+          "severity": "medium",
+          "action": "加強油網清潔",
+          "vendor": ""
+        },
+        {
+          "key": "異常_背板積垢",
+          "label": "背板積垢",
+          "template": "⚠️ 拖爐檢查背板積垢嚴重，建議安排廠商特清",
+          "severity": "medium",
+          "action": "安排廠商特清背板",
+          "vendor": "誠品"
+        },
+        {
+          "key": "異常_集油槽堵塞",
+          "label": "集油槽堵塞",
+          "template": "⚠️ 集油溝槽/滴油壺堵塞，需疏通",
+          "severity": "medium",
+          "action": "疏通集油溝槽",
+          "vendor": ""
+        },
+        {
+          "key": "異常_油車不潔",
+          "label": "油車不潔",
+          "template": "⚠️ 油車清潔狀況不佳，需整理",
+          "severity": "low",
+          "action": "清潔油車",
+          "vendor": ""
+        },
+        {
+          "key": "異常_大金剛斷裂",
+          "label": "大金剛斷裂",
+          "template": "⚠️ 大金剛架斷裂/上下分離，需焊修或更換",
+          "severity": "high",
+          "action": "叫修焊修大金剛",
+          "vendor": "益伸"
+        }
+      ]
+    },
+    "炸爐(薯站)": {
+      "key": "fryer_potato",
+      "group": "油炸區",
+      "groupIcon": "🔥",
+      "abnormalTypes": [
+        {
+          "key": "異常_瓦斯漏氣",
+          "label": "瓦斯漏氣",
+          "template": "⚠️ 瓦斯管有漏氣現象，須盡速叫修★",
+          "severity": "critical",
+          "action": "立即叫修瓦斯",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_油網髒污",
+          "label": "油網髒污",
+          "template": "⚠️ 油網/清潔口積垢，需加強清潔",
+          "severity": "medium",
+          "action": "加強油網清潔",
+          "vendor": ""
+        },
+        {
+          "key": "異常_背板積垢",
+          "label": "背板積垢",
+          "template": "⚠️ 背板積垢嚴重，建議安排特清",
+          "severity": "medium",
+          "action": "安排特清",
+          "vendor": "誠品"
+        },
+        {
+          "key": "異常_大金剛斷裂",
+          "label": "大金剛斷裂",
+          "template": "⚠️ 大金剛架斷裂，需焊修或更換",
+          "severity": "high",
+          "action": "叫修焊修",
+          "vendor": "益伸"
+        }
+      ]
+    },
+    "煎爐": {
+      "key": "grill",
+      "group": "油炸區",
+      "groupIcon": "🔥",
+      "abnormalTypes": [
+        {
+          "key": "異常_抬板積垢",
+          "label": "抬板積垢",
+          "template": "⚠️ 抬板後方積垢，需安排拖爐清潔",
+          "severity": "medium",
+          "action": "安排煎爐拖爐清潔",
+          "vendor": ""
+        },
+        {
+          "key": "異常_煙罩效能不足",
+          "label": "煙罩效能不足",
+          "template": "⚠️ 排油煙罩吸力不足，需檢查風管/風扇",
+          "severity": "high",
+          "action": "檢查排煙系統",
+          "vendor": "盛翔"
+        },
+        {
+          "key": "異常_瓦斯管問題",
+          "label": "瓦斯管問題",
+          "template": "⚠️ 煎爐瓦斯管/接頭處有異常，請廠商檢修",
+          "severity": "high",
+          "action": "叫修瓦斯管",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_密封條破損",
+          "label": "密封條破損",
+          "template": "⚠️ 煎區密封條斷裂/破損，請廠商更換",
+          "severity": "medium",
+          "action": "叫修更換密封條",
+          "vendor": "益伸/振興"
+        }
+      ]
+    },
+    "煎區肉櫃冰箱": {
+      "key": "meat_fridge_grill",
+      "group": "冷藏區",
+      "groupIcon": "❄️",
+      "abnormalTypes": [
+        {
+          "key": "異常_上蓋未密合",
+          "label": "上蓋未密合",
+          "template": "⚠️ 上蓋無法正常密合，冷氣外洩，需調整",
+          "severity": "high",
+          "action": "調整上蓋",
+          "vendor": ""
+        },
+        {
+          "key": "異常_鰭片髒污",
+          "label": "鰭片髒污",
+          "template": "⚠️ 冷凝器鰭片積灰/髒污，需清潔",
+          "severity": "medium",
+          "action": "清潔冷凝器鰭片",
+          "vendor": ""
+        },
+        {
+          "key": "異常_滴水盤積水",
+          "label": "滴水盤積水",
+          "template": "⚠️ 滴水盤積水/髒污★，需清潔",
+          "severity": "medium",
+          "action": "清潔滴水盤",
+          "vendor": ""
+        }
+      ]
+    },
+    "炸區掛式(左)": {
+      "key": "wall_fridge_left",
+      "group": "冷藏區",
+      "groupIcon": "❄️",
+      "abnormalTypes": [
+        {
+          "key": "異常_門墊圈破損",
+          "label": "門墊圈破損",
+          "template": "⚠️ 門墊圈破損/氣密不足，冷氣外洩，需更換",
+          "severity": "high",
+          "action": "更換門墊圈",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_結霜過多",
+          "label": "結霜過多",
+          "template": "⚠️ 內部結霜過多，需除霜或檢查除霜系統",
+          "severity": "medium",
+          "action": "除霜/檢查除霜系統",
+          "vendor": ""
+        },
+        {
+          "key": "異常_鰭片髒污",
+          "label": "鰭片髒污",
+          "template": "⚠️ 冷凝器鰭片髒污，影響散熱效率，需清潔",
+          "severity": "medium",
+          "action": "清潔冷凝器鰭片",
+          "vendor": ""
+        }
+      ]
+    },
+    "工作檯冰箱/炸區掛式(右)": {
+      "key": "worktable_fridge_right",
+      "group": "冷藏區",
+      "groupIcon": "❄️",
+      "abnormalTypes": [
+        {
+          "key": "異常_門墊圈破損",
+          "label": "門墊圈破損",
+          "template": "⚠️ 門墊圈破損/氣密不足，需更換",
+          "severity": "high",
+          "action": "更換門墊圈",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_結霜",
+          "label": "結霜",
+          "template": "⚠️ 結霜過多，需除霜",
+          "severity": "medium",
+          "action": "除霜",
+          "vendor": ""
+        },
+        {
+          "key": "異常_鰭片髒污",
+          "label": "鰭片髒污",
+          "template": "⚠️ 冷凝器鰭片髒污，需清潔",
+          "severity": "medium",
+          "action": "清潔鰭片",
+          "vendor": ""
+        }
+      ]
+    },
+    "調理台下方冰箱": {
+      "key": "under_counter_fridge",
+      "group": "冷藏區",
+      "groupIcon": "❄️",
+      "abnormalTypes": [
+        {
+          "key": "異常_門墊圈破損",
+          "label": "門墊圈破損",
+          "template": "⚠️ 門墊圈破損/氣密不足，需更換",
+          "severity": "high",
+          "action": "更換門墊圈",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_鰭片髒污",
+          "label": "鰭片髒污",
+          "template": "⚠️ 冷凝器鰭片髒污，需清潔",
+          "severity": "medium",
+          "action": "清潔鰭片",
+          "vendor": ""
+        },
+        {
+          "key": "異常_滴水盤積水",
+          "label": "滴水盤積水",
+          "template": "⚠️ 滴水盤積水★，需清潔",
+          "severity": "medium",
+          "action": "清潔滴水盤",
+          "vendor": ""
+        }
+      ]
+    },
+    "服務區冷藏冰箱": {
+      "key": "service_area_fridge",
+      "group": "冷藏區",
+      "groupIcon": "❄️",
+      "abnormalTypes": [
+        {
+          "key": "異常_門墊圈破損",
+          "label": "門墊圈破損",
+          "template": "⚠️ 門墊圈破損/氣密不足，需更換",
+          "severity": "high",
+          "action": "更換門墊圈",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_結霜",
+          "label": "結霜",
+          "template": "⚠️ 內部結霜過多，需除霜或檢查除霜系統",
+          "severity": "medium",
+          "action": "除霜",
+          "vendor": ""
+        },
+        {
+          "key": "異常_鰭片髒污",
+          "label": "鰭片髒污",
+          "template": "⚠️ 冷凝器鰭片髒污，需清潔",
+          "severity": "medium",
+          "action": "清潔鰭片",
+          "vendor": ""
+        }
+      ]
+    },
+    "冷凍庫": {
+      "key": "freezer",
+      "group": "冷藏區",
+      "groupIcon": "❄️",
+      "abnormalTypes": [
+        {
+          "key": "異常_鰭片結冰",
+          "label": "鰭片結冰",
+          "template": "⚠️ 蒸發器鰭片結冰/髒污，需除霜或檢查除霜系統",
+          "severity": "high",
+          "action": "除霜/檢查除霜定時器",
+          "vendor": ""
+        },
+        {
+          "key": "異常_排水管問題",
+          "label": "排水管問題",
+          "template": "⚠️ 排水管隔熱破損/結冰，需修補隔熱層",
+          "severity": "medium",
+          "action": "修補排水管隔熱層",
+          "vendor": ""
+        },
+        {
+          "key": "異常_門墊圈破損",
+          "label": "門墊圈破損",
+          "template": "⚠️ 庫門墊圈破損/氣密不足，冷氣外洩★",
+          "severity": "high",
+          "action": "更換門墊圈",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_貨物堆疊不當",
+          "label": "貨物堆疊不當",
+          "template": "⚠️ 貨物堆疊過高，離蒸發器不足30cm，需調整",
+          "severity": "medium",
+          "action": "調整貨物堆疊高度",
+          "vendor": ""
+        }
+      ]
+    },
+    "冷藏庫": {
+      "key": "cooler",
+      "group": "冷藏區",
+      "groupIcon": "❄️",
+      "abnormalTypes": [
+        {
+          "key": "異常_鰭片結冰",
+          "label": "鰭片結冰",
+          "template": "⚠️ 蒸發器鰭片結冰/髒污，需除霜",
+          "severity": "high",
+          "action": "除霜",
+          "vendor": ""
+        },
+        {
+          "key": "異常_門墊圈破損",
+          "label": "門墊圈破損",
+          "template": "⚠️ 冷藏庫門墊圈破損，冷氣外洩",
+          "severity": "high",
+          "action": "更換墊圈",
+          "vendor": "益伸"
+        },
+        {
+          "key": "異常_排水管",
+          "label": "排水管",
+          "template": "⚠️ 排水管隔熱破損，需修補",
+          "severity": "medium",
+          "action": "修補隔熱層",
+          "vendor": ""
+        }
+      ]
+    },
+    "冷凍薯條分配器": {
+      "key": "fries_dispenser",
+      "group": "冷藏區",
+      "groupIcon": "❄️",
+      "abnormalTypes": [
+        {
+          "key": "異常_濾網髒污",
+          "label": "濾網髒污",
+          "template": "⚠️ 冷凝器濾網髒污，需清洗（每月）",
+          "severity": "medium",
+          "action": "清洗冷凝器濾網",
+          "vendor": ""
+        },
+        {
+          "key": "異常_門墊圈破損",
+          "label": "門墊圈破損",
+          "template": "⚠️ 門墊圈破損/氣密不足",
+          "severity": "high",
+          "action": "更換墊圈",
+          "vendor": "益伸"
+        }
+      ]
+    },
+    "室外機 冷凍冷藏製冰飲料": {
+      "key": "condenser_unit",
+      "group": "冷凍製冰",
+      "groupIcon": "🧊",
+      "abnormalTypes": [
+        {
+          "key": "異常_鰭片髒污",
+          "label": "鰭片髒污",
+          "template": "⚠️ 冷凝器鰭片積灰/髒污，影響散熱效率，需清洗",
+          "severity": "high",
+          "action": "清洗冷凝器鰭片",
+          "vendor": "空調廠商"
+        },
+        {
+          "key": "異常_風扇異常",
+          "label": "風扇異常",
+          "template": "⚠️ 蒸發器風扇運轉異音/不轉，需檢修",
+          "severity": "high",
+          "action": "檢修風扇",
+          "vendor": "大昌"
+        },
+        {
+          "key": "異常_除霜鐘異常",
+          "label": "除霜鐘異常",
+          "template": "⚠️ 除霜鐘設定不正確★，需校准",
+          "severity": "high",
+          "action": "校准除霜鐘",
+          "vendor": ""
+        }
+      ]
+    },
+    "聖代機": {
+      "key": "sundae_machine",
+      "group": "冷凍製冰",
+      "groupIcon": "🧊",
+      "abnormalTypes": [
+        {
+          "key": "異常_濾網髒污",
+          "label": "濾網髒污",
+          "template": "⚠️ 濾網髒污★，需清潔或更換",
+          "severity": "medium",
+          "action": "清潔/更換濾網",
+          "vendor": ""
+        },
+        {
+          "key": "異常_滴盤髒污",
+          "label": "滴盤髒污",
+          "template": "⚠️ 側/後邊滴盤髒污，需清潔",
+          "severity": "low",
+          "action": "清潔滴盤",
+          "vendor": ""
+        },
+        {
+          "key": "異常_攪拌器晃動",
+          "label": "攪拌器晃動",
+          "template": "⚠️ 攪拌器轉動晃動過大，需檢修",
+          "severity": "medium",
+          "action": "檢修攪拌器",
+          "vendor": "大昌"
+        }
+      ]
+    },
+    "製冰機": {
+      "key": "ice_maker",
+      "group": "冷凍製冰",
+      "groupIcon": "🧊",
+      "abnormalTypes": [
+        {
+          "key": "異常_冰盤髒污",
+          "label": "冰盤髒污",
+          "template": "⚠️ 冰盤四周髒污，需清潔除垢",
+          "severity": "medium",
+          "action": "清潔冰盤",
+          "vendor": ""
+        },
+        {
+          "key": "異常_儲槽髒污",
+          "label": "儲槽髒污",
+          "template": "⚠️ 儲槽髒污，需清潔",
+          "severity": "medium",
+          "action": "清潔儲槽",
+          "vendor": ""
+        },
+        {
+          "key": "異常_冰層異常",
+          "label": "冰層異常",
+          "template": "⚠️ 冰層厚度異常，需調整",
+          "severity": "medium",
+          "action": "調整冰層厚度",
+          "vendor": "大昌"
+        }
+      ]
+    },
+    "HVAC 室外機": {
+      "key": "hvac_outdoor",
+      "group": "空調HVAC",
+      "groupIcon": "🌬️",
+      "abnormalTypes": [
+        {
+          "key": "異常_外部鏽蝕",
+          "label": "外部鏽蝕",
+          "template": "⚠️ 室外機外部有鏽蝕/損壞，需處理",
+          "severity": "medium",
+          "action": "除鏽/修補",
+          "vendor": "空調廠商"
+        },
+        {
+          "key": "異常_面板鬆脫",
+          "label": "面板鬆脫",
+          "template": "⚠️ 面板未正確固定/鬆脫，需鎖緊",
+          "severity": "medium",
+          "action": "固定面板",
+          "vendor": ""
+        },
+        {
+          "key": "異常_鰭片髒污",
+          "label": "鰭片髒污",
+          "template": "⚠️ 室外機鰭片積灰嚴重，需請廠商清洗",
+          "severity": "high",
+          "action": "安排清洗室外機鰭片",
+          "vendor": "空調廠商"
+        }
+      ]
+    },
+    "HVAC 溫控檢視": {
+      "key": "hvac_temp_check",
+      "group": "空調HVAC",
+      "groupIcon": "🌬️",
+      "abnormalTypes": [
+        {
+          "key": "異常_用餐區過冷",
+          "label": "用餐區過冷",
+          "template": "⚠️ 用餐區溫度偏低(____℃)，建議調高溫控設定(目標26℃)★",
+          "severity": "medium",
+          "action": "調整用餐區溫控",
+          "vendor": ""
+        },
+        {
+          "key": "異常_用餐區過熱",
+          "label": "用餐區過熱",
+          "template": "⚠️ 用餐區溫度偏高(____℃)，建議檢查空調運轉",
+          "severity": "medium",
+          "action": "檢查空調",
+          "vendor": ""
+        },
+        {
+          "key": "異常_廚房區過熱",
+          "label": "廚房區過熱",
+          "template": "⚠️ 廚房區溫度偏高(____℃)，目標24℃，需調整★",
+          "severity": "medium",
+          "action": "調整廚房區溫控",
+          "vendor": ""
+        },
+        {
+          "key": "異常_溫控器故障",
+          "label": "溫控器故障",
+          "template": "⚠️ 溫度控制器設定異常/故障，需檢修",
+          "severity": "high",
+          "action": "叫修溫控器",
+          "vendor": "空調廠商"
+        }
+      ]
+    },
+    "HVAC 濾網": {
+      "key": "hvac_filter",
+      "group": "空調HVAC",
+      "groupIcon": "🌬️",
+      "abnormalTypes": [
+        {
+          "key": "異常_回風濾網髒污",
+          "label": "回風濾網髒污",
+          "template": "⚠️ 天花板回風濾網髒污/破損，須清洗/更換（每周）",
+          "severity": "medium",
+          "action": "清洗/更換回風濾網",
+          "vendor": ""
+        },
+        {
+          "key": "異常_空調箱濾網",
+          "label": "空調箱濾網",
+          "template": "⚠️ 空調箱濾網未更換/未填滿濾網架，須立即更換",
+          "severity": "high",
+          "action": "更換空調箱濾網",
+          "vendor": ""
+        },
+        {
+          "key": "異常_外氣入口",
+          "label": "外氣入口",
+          "template": "⚠️ 新鮮空氣入口有異味/阻塞，需清潔",
+          "severity": "medium",
+          "action": "清潔外氣入口",
+          "vendor": ""
+        }
+      ]
+    },
+    "排煙設備": {
+      "key": "exhaust_hood",
+      "group": "排汙水處理",
+      "groupIcon": "💧",
+      "abnormalTypes": [
+        {
+          "key": "異常_風扇異常",
+          "label": "風扇異常",
+          "template": "⚠️ 風扇運轉有異聲，需檢修",
+          "severity": "high",
+          "action": "檢修排油煙風扇",
+          "vendor": "盛翔"
+        },
+        {
+          "key": "異常_帆布破損",
+          "label": "帆布破損",
+          "template": "⚠️ 帆布接頭破損/漏油，需更換",
+          "severity": "high",
+          "action": "更換帆布接頭",
+          "vendor": "盛翔"
+        },
+        {
+          "key": "異常_集油過多",
+          "label": "集油過多",
+          "template": "⚠️ 集油箱外積油嚴重，需安排特清",
+          "severity": "medium",
+          "action": "安排排煙設備特清",
+          "vendor": "盛翔"
+        },
+        {
+          "key": "異常_風罩破洞",
+          "label": "風罩破洞",
+          "template": "⚠️ 風罩有破洞，需修補",
+          "severity": "medium",
+          "action": "修補風罩",
+          "vendor": ""
+        }
+      ]
+    },
+    "截油槽": {
+      "key": "grease_trap",
+      "group": "排汙水處理",
+      "groupIcon": "💧",
+      "abnormalTypes": [
+        {
+          "key": "異常_吸油棉未換",
+          "label": "吸油棉未換",
+          "template": "⚠️ 吸油棉未正確安裝/未更換（每日更換2片）",
+          "severity": "medium",
+          "action": "更換吸油棉",
+          "vendor": ""
+        },
+        {
+          "key": "異常_內部髒污",
+          "label": "內部髒污",
+          "template": "⚠️ 截油槽內部髒污/積油過多，需清潔",
+          "severity": "medium",
+          "action": "清潔截油槽",
+          "vendor": ""
+        },
+        {
+          "key": "異常_戶外阻塞",
+          "label": "戶外阻塞",
+          "template": "⚠️ 戶外截油槽髒污/阻塞，需安排抽肥",
+          "severity": "high",
+          "action": "安排抽肥清潔",
+          "vendor": "環保廠商"
+        }
+      ]
+    },
+    "截油分配器": {
+      "key": "grease_dispenser",
+      "group": "排汙水處理",
+      "groupIcon": "💧",
+      "abnormalTypes": [
+        {
+          "key": "異常_化油劑不足",
+          "label": "化油劑不足",
+          "template": "⚠️ 化油劑不足，需補充",
+          "severity": "medium",
+          "action": "補充化油劑",
+          "vendor": ""
+        },
+        {
+          "key": "異常_分配器故障",
+          "label": "分配器故障",
+          "template": "⚠️ 分配器測試異常★，無法正常運作，需檢修",
+          "severity": "high",
+          "action": "檢修分配器",
+          "vendor": "廠商"
+        },
+        {
+          "key": "異常_軟管脫落",
+          "label": "軟管脫落",
+          "template": "⚠️ 分配器軟管未正確安裝/脫落，需重新安裝",
+          "severity": "medium",
+          "action": "重新安裝軟管",
+          "vendor": ""
+        }
+      ]
+    },
+    "陰井": {
+      "key": "sump_pit",
+      "group": "排汙水處理",
+      "groupIcon": "💧",
+      "abnormalTypes": [
+        {
+          "key": "異常_浮油過多",
+          "label": "浮油過多",
+          "template": "⚠️ 陰井內部浮油/垃圾過多，需清潔",
+          "severity": "medium",
+          "action": "清潔陰井",
+          "vendor": ""
+        },
+        {
+          "key": "異常_水管阻塞",
+          "label": "水管阻塞",
+          "template": "⚠️ 連通水管阻塞，需疏通",
+          "severity": "high",
+          "action": "疏通連通管",
+          "vendor": "環保廠商"
+        }
+      ]
+    },
+    "清洗機": {
+      "key": "dishwasher",
+      "group": "清洗設備",
+      "groupIcon": "🧼",
+      "abnormalTypes": [
+        {
+          "key": "異常_淋臂水垢",
+          "label": "淋臂水垢",
+          "template": "⚠️ 淋臂卡水垢，需除垢清潔",
+          "severity": "medium",
+          "action": "清潔淋臂除垢",
+          "vendor": ""
+        },
+        {
+          "key": "異常_濾板髒污",
+          "label": "濾板髒污",
+          "template": "⚠️ 濾板/過濾網髒污，需清潔",
+          "severity": "medium",
+          "action": "清潔濾板",
+          "vendor": ""
+        },
+        {
+          "key": "異常_滑門未關",
+          "label": "滑門未關",
+          "template": "⚠️ 待機時滑門未關閉至指定高度",
+          "severity": "low",
+          "action": "關閉滑門",
+          "vendor": ""
+        }
+      ]
+    },
+    "照明&廚房設備": {
+      "key": "lighting_kitchen",
+      "group": "清洗設備",
+      "groupIcon": "🧼",
+      "abnormalTypes": [
+        {
+          "key": "異常_開關機表未更新",
+          "label": "開關機表未更新",
+          "template": "⚠️ 設備開關機時間表不是最新/未張貼",
+          "severity": "medium",
+          "action": "更新並張貼開關機表",
+          "vendor": ""
+        },
+        {
+          "key": "異常_管理組不了解",
+          "label": "管理組不了解",
+          "template": "⚠️ 管理組不了解開關機時間表，需重新教育訓練",
+          "severity": "medium",
+          "action": "安排教育訓練",
+          "vendor": ""
+        },
+        {
+          "key": "異常_設備未按時開關",
+          "label": "設備未按時開關",
+          "template": "⚠️ 尖峰時段外設備未關閉/未符合開關機表",
+          "severity": "medium",
+          "action": "調整設備開關機",
+          "vendor": ""
+        }
+      ]
+    },
+    "開罐器": {
+      "key": "can_opener",
+      "group": "刀具器具",
+      "groupIcon": "🔪",
+      "abnormalTypes": [
+        {
+          "key": "異常_刀片髒污",
+          "label": "刀片髒污",
+          "template": "⚠️ 刀片/齒輪髒污，需清潔",
+          "severity": "low",
+          "action": "清潔刀片齒輪",
+          "vendor": ""
+        },
+        {
+          "key": "異常_開罐不良",
+          "label": "開罐不良",
+          "template": "⚠️ 試開後上蓋未完全切割/開罐不順，需更換刀片組",
+          "severity": "medium",
+          "action": "更換刀片組",
+          "vendor": "振興"
+        },
+        {
+          "key": "異常_推把鬆脫",
+          "label": "推把鬆脫",
+          "template": "⚠️ 開罐器推把鬆脫，需鎖緊或更換",
+          "severity": "medium",
+          "action": "鎖緊/更換推把",
+          "vendor": ""
+        }
+      ]
+    },
+    "蕃茄切片器": {
+      "key": "tomato_slicer",
+      "group": "刀具器具",
+      "groupIcon": "🔪",
+      "abnormalTypes": [
+        {
+          "key": "異常_缺止滑墊",
+          "label": "缺止滑墊",
+          "template": "⚠️ 缺止滑墊，需訂購補齊",
+          "severity": "medium",
+          "action": "訂購止滑墊",
+          "vendor": "振興"
+        },
+        {
+          "key": "異常_缺插銷",
+          "label": "缺插銷",
+          "template": "⚠️ 缺插銷/插銷脫落，需訂購更換",
+          "severity": "medium",
+          "action": "訂購插銷",
+          "vendor": "振興"
+        },
+        {
+          "key": "異常_刀片變形",
+          "label": "刀片變形",
+          "template": "⚠️ 刀片變形/不完整，需更換",
+          "severity": "high",
+          "action": "更換刀片",
+          "vendor": "振興"
+        },
+        {
+          "key": "異常_缺件",
+          "label": "缺件",
+          "template": "⚠️ 番茄切片器缺件(____)，請訂購補齊",
+          "severity": "medium",
+          "action": "訂購缺件",
+          "vendor": "振興"
+        }
+      ]
+    },
+    "CO2 偵測器": {
+      "key": "co2_detector",
+      "group": "安全偵測",
+      "groupIcon": "⚠️",
+      "abnormalTypes": [
+        {
+          "key": "異常_無亮燈",
+          "label": "無亮燈",
+          "template": "⚠️ CO2偵測器無亮燈號，請廠商檢查",
+          "severity": "critical",
+          "action": "叫修CO2偵測器",
+          "vendor": "廠商"
+        },
+        {
+          "key": "異常_未維護",
+          "label": "未維護",
+          "template": "⚠️ CO2偵測器未定期維護，需安排",
+          "severity": "medium",
+          "action": "安排定期維護",
+          "vendor": ""
+        },
+        {
+          "key": "異常_員工不了解",
+          "label": "員工不了解",
+          "template": "⚠️ 員工不了解CO2警報器作用，需教育訓練",
+          "severity": "medium",
+          "action": "安排員工教育訓練",
+          "vendor": ""
+        }
+      ]
+    },
+    "瓦斯遮斷閥": {
+      "key": "gas_shutoff",
+      "group": "安全偵測",
+      "groupIcon": "⚠️",
+      "abnormalTypes": [
+        {
+          "key": "異常_無亮燈",
+          "label": "無亮燈",
+          "template": "⚠️ 瓦斯警報器無亮燈號，請廠商檢修★",
+          "severity": "critical",
+          "action": "立即叫修瓦斯警報器",
+          "vendor": "弘輝"
+        },
+        {
+          "key": "異常_遮斷閥異常",
+          "label": "遮斷閥異常",
+          "template": "⚠️ 瓦斯遮斷閥測試異常★，無法正常作動，須盡速叫修",
+          "severity": "critical",
+          "action": "立即叫修遮斷閥",
+          "vendor": "弘輝"
+        },
+        {
+          "key": "異常_BYPASS未關",
+          "label": "BYPASS未關",
+          "template": "⚠️ BY PASS開關未關閉★，需立即關閉",
+          "severity": "high",
+          "action": "關閉BY PASS開關",
+          "vendor": ""
+        }
+      ]
+    },
+    "病媒": {
+      "key": "pest_control",
+      "group": "安全偵測",
+      "groupIcon": "⚠️",
+      "abnormalTypes": [
+        {
+          "key": "異常_捕蠅燈異常",
+          "label": "捕蠅燈異常",
+          "template": "⚠️ 捕蠅燈未正常運作，需更換燈管/檢修",
+          "severity": "medium",
+          "action": "更換捕蠅燈管/檢修",
+          "vendor": ""
+        },
+        {
+          "key": "異常_環境髒污",
+          "label": "環境髒污",
+          "template": "⚠️ 飲料機後方/儲冰槽後方髒污，需加強清潔",
+          "severity": "medium",
+          "action": "加強環境清潔",
+          "vendor": ""
+        },
+        {
+          "key": "異常_門窗破損",
+          "label": "門窗破損",
+          "template": "⚠️ 門/窗密合不良，有病媒侵入風險，需修補",
+          "severity": "high",
+          "action": "修補門窗縫隙",
+          "vendor": ""
+        }
+      ]
+    },
+    "其他": {
+      "key": "other",
+      "group": "其他",
+      "groupIcon": "📋",
+      "abnormalTypes": [
+        {
+          "key": "異常_有建議事項",
+          "label": "有建議事項",
+          "template": "📝 觀察建議：____",
+          "severity": "low",
+          "action": "依建議事項處理",
+          "vendor": ""
+        }
+      ]
+    },
+    "資料整理": {
+      "key": "documentation",
+      "group": "其他",
+      "groupIcon": "📋",
+      "abnormalTypes": []
+    }
+  },
+  "restaurants": [
+    {
+      "code": "S012",
+      "name": "永和"
+    },
+    {
+      "code": "S022",
+      "name": "新店北新一"
+    },
+    {
+      "code": "S085",
+      "name": "永和中正"
+    },
+    {
+      "code": "S099",
+      "name": "中和"
+    },
+    {
+      "code": "S133",
+      "name": "新店北新二"
+    },
+    {
+      "code": "S197",
+      "name": "新店安康"
+    },
+    {
+      "code": "S203",
+      "name": "中和中山"
+    },
+    {
+      "code": "S209",
+      "name": "中和興南"
+    },
+    {
+      "code": "S242",
+      "name": "永和得和"
+    },
+    {
+      "code": "S257",
+      "name": "永和中山"
+    },
+    {
+      "code": "S356",
+      "name": "永和永安"
+    },
+    {
+      "code": "S446",
+      "name": "板橋府中"
+    },
+    {
+      "code": "S471",
+      "name": "中和景新"
+    },
+    {
+      "code": "S490",
+      "name": "新店中正二"
+    },
+    {
+      "code": "S510",
+      "name": "新店中正三"
+    },
+    {
+      "code": "S569",
+      "name": "永和永利"
+    },
+    {
+      "code": "S600",
+      "name": "新店北新三"
+    },
+    {
+      "code": "S620",
+      "name": "中和建一"
+    }
+  ]
+}

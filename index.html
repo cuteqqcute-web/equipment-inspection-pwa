@@ -1,0 +1,2629 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a73e8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>設備巡檢拍照</title>
+<link rel="manifest" href="manifest.json">
+<style>
+/* ===== 全局重置與變數 ===== */
+:root {
+  --primary: #1a73e8;
+  --primary-dark: #1557b0;
+  --success: #34a853;
+  --warning: #fbbc04;
+  --danger: #ea4335;
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #202124;
+  --text-secondary: #5f6368;
+  --border: #dadce0;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+body {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  padding-bottom: calc(60px + var(--safe-bottom));
+}
+/* ===== 頂部導航 ===== */
+.app-header {
+  background: var(--primary);
+  color: white;
+  padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.app-header .back-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: none;
+  line-height: 1;
+}
+.app-header .back-btn.show { display: block; }
+.app-header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.app-header .header-badge {
+  font-size: 12px;
+  background: rgba(255,255,255,0.2);
+  padding: 2px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+/* ===== 頁面容器 ===== */
+.page {
+  display: none;
+  padding: 16px;
+  padding-bottom: 20px;
+}
+.page.active { display: block; }
+/* ===== 按鈕通用 ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s, transform 0.1s;
+  width: 100%;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: white; }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+.btn-large { padding: 16px 24px; font-size: 18px; border-radius: 14px; }
+.btn-small { padding: 8px 14px; font-size: 14px; border-radius: 8px; width: auto; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+/* ===== 表單 ===== */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+select, input[type="text"], textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 16px;
+  background: var(--card);
+  color: var(--text);
+  -webkit-appearance: none;
+  appearance: none;
+}
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235f6368' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+textarea { resize: vertical; min-height: 60px; }
+/* ===== 頁面特定樣式 ===== */
+
+/* --- Home --- */
+.home-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.home-card h2 { font-size: 16px; margin-bottom: 12px; color: var(--text-secondary); }
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.stat-item {
+  text-align: center;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 10px;
+}
+.stat-number { font-size: 28px; font-weight: 700; color: var(--primary); }
+.stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.recent-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.recent-btns .btn-small {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.recent-btns .btn-small:active { background: var(--primary); color: white; }
+
+/* --- Group Select --- */
+.group-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.group-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 8px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+  position: relative;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.group-card:active { border-color: var(--primary); }
+.group-card .icon { font-size: 32px; }
+.group-card .name { font-size: 13px; margin-top: 6px; font-weight: 500; }
+.group-card .badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 10px;
+  background: var(--success);
+  color: white;
+  padding: 1px 6px;
+  border-radius: 8px;
+  display: none;
+}
+.group-card .badge.show { display: block; }
+.group-card.done { border-color: var(--success); }
+
+/* --- Device Select --- */
+.device-list { list-style: none; }
+.device-item {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  border-left: 4px solid var(--border);
+}
+.device-item:active { background: #e8f0fe; }
+.device-item .status-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+.device-item.done { border-left-color: var(--success); }
+.device-item.done .status-icon { background: var(--success); color: white; }
+.device-item .name { flex: 1; font-weight: 500; }
+
+/* --- Camera Page --- */
+.camera-device-info {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.camera-device-info .device-name { font-size: 18px; font-weight: 600; }
+.camera-device-info .device-path { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.status-options { margin: 12px 0; }
+.status-option {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.status-option.selected {
+  border-color: var(--primary);
+  background: #e8f0fe;
+}
+.status-option .radio-circle {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+.status-option.selected .radio-circle {
+  border-color: var(--primary);
+}
+.status-option.selected .radio-circle::after {
+  content: '';
+  width: 10px; height: 10px;
+  background: var(--primary);
+  border-radius: 50%;
+}
+.status-option .status-label { font-weight: 500; }
+.status-option .severity-tag {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+.severity-critical { background: #fce8e6; color: #c5221f; }
+.severity-high { background: #fef7e0; color: #e37400; }
+.severity-medium { background: #e8f0fe; color: #1a73e8; }
+.severity-low { background: #e6f4ea; color: #137333; }
+
+.photo-preview-area {
+  margin: 12px 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #e8e8e8;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.photo-preview-area img {
+  width: 100%;
+  display: block;
+}
+.photo-preview-area .placeholder {
+  color: var(--text-secondary);
+  font-size: 14px;
+  text-align: center;
+  padding: 40px 20px;
+}
+.photo-preview-area .placeholder .icon { font-size: 48px; display: block; margin-bottom: 8px; }
+
+.file-name-preview {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  word-break: break-all;
+  color: var(--text-secondary);
+  margin-top: 12px;
+  border: 1px solid var(--border);
+}
+.file-name-preview strong { color: var(--text); }
+
+/* --- Confirm Page --- */
+.confirm-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.confirm-card img { width: 100%; display: block; }
+.confirm-info { padding: 16px; }
+.confirm-info .row { display: flex; padding: 6px 0; font-size: 14px; }
+.confirm-info .row .label { color: var(--text-secondary); width: 60px; flex-shrink: 0; }
+.confirm-info .row .value { flex: 1; font-weight: 500; }
+.progress-bar-wrap {
+  background: var(--bg);
+  border-radius: 8px;
+  height: 20px;
+  overflow: hidden;
+  margin: 12px 0;
+  position: relative;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--success);
+  border-radius: 8px;
+  transition: width 0.3s;
+  min-width: 4px;
+}
+.progress-bar-text {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--text);
+  font-weight: 600;
+}
+.confirm-actions { display: flex; flex-direction: column; gap: 10px; }
+/* ===== 底部操作欄 ===== */
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  padding: 8px 16px;
+  padding-bottom: calc(8px + var(--safe-bottom));
+  display: flex;
+  gap: 10px;
+  max-width: 480px;
+  margin: 0 auto;
+  z-index: 100;
+  display: none;
+}
+.app-footer.show { display: flex; }
+.app-footer .btn { font-size: 14px; padding: 10px; }
+/* ===== 連線狀態 ===== */
+.connection-badge {
+  position: fixed;
+  bottom: calc(70px + var(--safe-bottom));
+  right: 12px;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.connection-badge .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.connection-badge .dot.online { background: var(--success); }
+.connection-badge .dot.offline { background: var(--danger); }
+/* ===== Toast 提示 ===== */
+.toast {
+  position: fixed;
+  top: calc(70px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  background: #323232;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  max-width: 400px;
+  text-align: center;
+}
+.toast.show { opacity: 1; }
+/* ===== 掃動載入指示 ===== */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+.loading .spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+/* ===== 響應式微調 ===== */
+@media (max-width: 360px) {
+  .group-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 481px) {
+  body { border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+}
+/* ===== Photo Editor ===== */
+.editor-page { padding: 0 !important; background: #000; }
+.editor-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 56px);
+  height: calc(100dvh - 56px);
+  background: #000;
+}
+.editor-canvas-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.editor-canvas-wrapper canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: auto;
+}
+#editorBgCanvas { z-index: 1; }
+#editorDrawCanvas { z-index: 2; cursor: crosshair; touch-action: none; }
+
+.editor-undo-btn, .editor-clear-btn, .editor-cancel-btn {
+  position: absolute;
+  top: 12px;
+  z-index: 10;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  font-size: 18px;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.editor-cancel-btn { left: 12px; }
+.editor-undo-btn { right: 60px; }
+.editor-clear-btn { right: 12px; }
+.editor-undo-btn:disabled { opacity: 0.35; }
+
+.editor-color-bar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.editor-color-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+.editor-color-btn:active { transform: scale(0.9); }
+.editor-color-btn.active { border-color: rgba(255,255,255,0.9); box-shadow: 0 0 0 1px rgba(255,255,255,0.3); }
+
+/* Size selector */
+.editor-size-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  background: rgba(0,0,0,0.55);
+  padding: 4px 6px;
+  border-radius: 20px;
+}
+.editor-size-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  color: white;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  line-height: 1;
+  padding: 0;
+}
+.editor-size-btn.active { border-color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.15); }
+
+.editor-bottom-panel {
+  flex-shrink: 0;
+  background: var(--card);
+}
+
+.editor-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 12px;
+  padding-bottom: 6px;
+  background: #f0f0f0;
+  border-top: 1px solid var(--border);
+}
+
+.editor-toolbar {
+  display: flex;
+  background: var(--card);
+  padding: 4px 8px;
+  gap: 4px;
+}
+.editor-tool-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 6px 4px 4px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.12s;
+  touch-action: manipulation;
+}
+.editor-tool-btn.active {
+  background: #e8f0fe;
+}
+.editor-tool-btn .tool-icon { font-size: 22px; line-height: 1.2; }
+.editor-tool-btn .tool-label { font-size: 11px; color: var(--text-secondary); }
+.editor-tool-btn.active .tool-label { color: var(--primary); font-weight: 600; }
+
+.editor-actions {
+  display: flex;
+  gap: 10px;
+  padding: 10px 16px;
+  padding-bottom: calc(10px + var(--safe-bottom));
+  background: var(--card);
+  border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 頂部導航列 ===== -->
+<header class="app-header" id="appHeader">
+  <button class="back-btn" id="backBtn" onclick="routerBack()">‹</button>
+  <h1 id="headerTitle">設備巡檢拍照</h1>
+  <span class="header-badge" id="headerBadge"></span>
+</header>
+
+<!-- ===== Page: Home ===== -->
+<div class="page active" id="pageHome">
+  <div class="home-card">
+    <h2>🏪 選擇餐廳</h2>
+    <div class="form-group">
+      <select id="restaurantSelect" onchange="onRestaurantChange()">
+        <option value="">— 請選擇餐廳 —</option>
+      </select>
+    </div>
+    <div id="recentRestaurants" class="recent-btns" style="display:none;">
+      <span style="font-size:13px;color:var(--text-secondary);width:100%;">最近使用:</span>
+    </div>
+  </div>
+
+  <div class="home-card">
+    <h2>📊 今日進度</h2>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number" id="todayCount">0</div>
+        <div class="stat-label">已拍攝</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="pendingSyncCount">0</div>
+        <div class="stat-label">待同步</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary btn-large" id="startBtn" onclick="routerGo('groups')" disabled>
+    🔍 開始巡檢
+  </button>
+
+  <div style="display:flex;gap:10px;margin-top:12px;">
+    <button class="btn btn-outline" onclick="routerGo('sync')" style="flex:1;">⚡ 同步</button>
+    <button class="btn btn-outline" onclick="routerGo('settings')" style="flex:1;">⚙️ 設定</button>
+  </div>
+</div>
+
+<!-- ===== Page: Group Select ===== -->
+<div class="page" id="pageGroups">
+  <div class="group-grid" id="groupGrid"></div>
+</div>
+
+<!-- ===== Page: Device Select ===== -->
+<div class="page" id="pageDevices">
+  <div style="margin-bottom:12px;font-size:14px;color:var(--text-secondary);" id="deviceGroupTitle"></div>
+  <ul class="device-list" id="deviceList"></ul>
+</div>
+
+<!-- ===== Page: Camera ===== -->
+<div class="page" id="pageCamera">
+  <div class="camera-device-info">
+    <div class="device-name" id="camDeviceName"></div>
+    <div class="device-path" id="camDevicePath"></div>
+  </div>
+
+  <div class="form-group">
+    <label>📋 狀態</label>
+    <div class="status-options" id="statusOptions"></div>
+    <div id="customStatusInput" style="display:none; margin-top:8px;">
+      <input type="text" id="customStatusText" placeholder="請輸入異常狀況，如：濾網破裂、馬達異音⋯" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:14px;" oninput="onCustomStatusChange()">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>📝 備註（選填）</label>
+    <textarea id="noteInput" placeholder="例如：右側第二爐有異音" rows="2"></textarea>
+  </div>
+
+  <button class="btn btn-primary btn-large" id="cameraBtn" onclick="takePhoto()">
+    📷 拍照
+  </button>
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="onPhotoTaken(event)">
+
+  <div class="photo-preview-area" id="photoPreview">
+    <div class="placeholder">
+      <span class="icon">📸</span>
+      點擊上方按鈕拍照
+    </div>
+  </div>
+
+  <div class="file-name-preview" id="fileNamePreview">
+    將命名為：<strong id="fileNameText">請先選擇狀態</strong>
+  </div>
+
+  <!-- 已拍照片縮圖列（連續拍照模式） -->
+  <div id="thumbnailSection" style="display:none;margin-top:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:14px;font-weight:600;color:var(--text-secondary);">📸 已拍照片</span>
+      <span style="font-size:13px;color:var(--text-secondary);" id="photoCountLabel">共 0 張</span>
+    </div>
+    <div id="thumbnailStrip" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;min-height:100px;">
+    </div>
+  </div>
+
+  <!-- 底部操作：分享 + 完成儲存全部照片 -->
+  <div style="display:flex;gap:10px;margin-top:16px;">
+    <button class="btn btn-outline btn-large" id="shareBtn" onclick="shareCurrentPhoto()" disabled style="flex:1;display:none;">
+      📤 分享
+    </button>
+    <button class="btn btn-success btn-large" id="finishBtn" onclick="finishBatch()" disabled style="flex:1;">
+      ✅ 完成儲存（0 張）
+    </button>
+  </div>
+</div>
+
+<!-- ===== Page: Photo Editor ===== -->
+<div class="page editor-page" id="pageEditor">
+  <div class="editor-container">
+    <div class="editor-canvas-wrapper" id="editorCanvasWrapper">
+      <canvas id="editorBgCanvas"></canvas>
+      <canvas id="editorDrawCanvas"></canvas>
+    </div>
+
+    <!-- Top floating controls (LINE-like: cancel left, undo/clear right) -->
+    <button class="editor-cancel-btn" id="editorCancelBtn" onclick="editorCancel()" title="取消編輯">✕</button>
+    <button class="editor-undo-btn" id="editorUndoBtn" onclick="editorUndo()" title="復原上一步" disabled>↩️</button>
+    <button class="editor-clear-btn" id="editorClearBtn" onclick="editorClear()" title="清除全部標記">🗑️</button>
+  </div>
+
+  <!-- Bottom panel: controls + tools + actions (LINE-like layout) -->
+  <div class="editor-bottom-panel">
+    <!-- Row 1: Color + Size -->
+    <div class="editor-controls-row">
+      <div class="editor-color-bar" id="editorColorBar">
+        <button class="editor-color-btn active" data-color="#ea4335" style="background:#ea4335" onclick="editorSetColor('#ea4335')" title="紅"></button>
+        <button class="editor-color-btn" data-color="#fbbc04" style="background:#fbbc04" onclick="editorSetColor('#fbbc04')" title="黃"></button>
+        <button class="editor-color-btn" data-color="#1a73e8" style="background:#1a73e8" onclick="editorSetColor('#1a73e8')" title="藍"></button>
+        <button class="editor-color-btn" data-color="#34a853" style="background:#34a853" onclick="editorSetColor('#34a853')" title="綠"></button>
+        <button class="editor-color-btn" data-color="#ffffff" style="background:#ffffff;border:1px solid #999" onclick="editorSetColor('#ffffff')" title="白"></button>
+        <button class="editor-color-btn" data-color="#000000" style="background:#000000" onclick="editorSetColor('#000000')" title="黑"></button>
+      </div>
+      <div class="editor-size-group">
+        <button class="editor-size-btn" data-size="3" onclick="editorSetSize(3)" title="細">─</button>
+        <button class="editor-size-btn active" data-size="8" onclick="editorSetSize(8)" title="中">──</button>
+        <button class="editor-size-btn" data-size="16" onclick="editorSetSize(16)" title="粗">───</button>
+      </div>
+    </div>
+
+    <!-- Row 2: Tools -->
+    <div class="editor-toolbar">
+      <button class="editor-tool-btn active" data-tool="pen" onclick="editorSetTool('pen')">
+        <span class="tool-icon">🖊️</span>
+        <span class="tool-label">筆畫</span>
+      </button>
+      <button class="editor-tool-btn" data-tool="circle" onclick="editorSetTool('circle')">
+        <span class="tool-icon">⭕</span>
+        <span class="tool-label">圓形</span>
+      </button>
+      <button class="editor-tool-btn" data-tool="arrow" onclick="editorSetTool('arrow')">
+        <span class="tool-icon">➡️</span>
+        <span class="tool-label">箭頭</span>
+      </button>
+      <button class="editor-tool-btn" data-tool="text" onclick="editorSetTool('text')">
+        <span class="tool-icon">📝</span>
+        <span class="tool-label">文字</span>
+      </button>
+      <button class="editor-tool-btn" data-tool="eraser" onclick="editorSetTool('eraser')">
+        <span class="tool-icon">🧹</span>
+        <span class="tool-label">橡皮擦</span>
+      </button>
+    </div>
+
+    <!-- Row 3: Action buttons -->
+    <div class="editor-actions">
+      <button class="btn btn-outline" onclick="editorCancel()" style="flex:1;border-color:var(--danger);color:var(--danger);">✏️ 重新拍照</button>
+      <button class="btn btn-success" onclick="editorConfirm()" style="flex:2;">✅ 確認儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Page: Confirm ===== -->
+<div class="page" id="pageConfirm">
+  <div class="confirm-card">
+    <div id="confirmPhotoContainer" style="min-height:200px;background:#e8e8e8;display:flex;align-items:center;justify-content:center;">
+      <img id="confirmPhoto" style="display:none;" alt="預覽照片">
+    </div>
+    <div class="confirm-info">
+      <div class="row"><span class="label">餐廳</span><span class="value" id="confirmRestaurant"></span></div>
+      <div class="row"><span class="label">設備</span><span class="value" id="confirmDevice"></span></div>
+      <div class="row"><span class="label">狀態</span><span class="value" id="confirmStatus"></span></div>
+      <div class="row"><span class="label">備註</span><span class="value" id="confirmNote"></span></div>
+      <div class="row" style="flex-wrap:wrap;"><span class="label">檔名</span><span class="value" style="font-size:12px;word-break:break-all;" id="confirmFileName"></span></div>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="confirmProgressFill" style="width:0%"></div>
+    <div class="progress-bar-text" id="confirmProgressText">0 / 33</div>
+  </div>
+
+  <div class="confirm-actions">
+    <button class="btn btn-primary btn-large" onclick="routerGo('devices')">📸 拍下一台設備</button>
+    <button class="btn btn-success btn-large" onclick="routerGo('home')">✅ 完成今日巡檢</button>
+    <button class="btn btn-outline" onclick="routerGo('camera')">↩️ 重新選擇設備</button>
+  </div>
+</div>
+
+<!-- ===== Page: Sync (簡易版) ===== -->
+<div class="page" id="pageSync">
+  <div class="home-card">
+    <h2>⚡ 同步中心</h2>
+    <div class="stats-grid" style="margin-bottom:12px;">
+      <div class="stat-item">
+        <div class="stat-number" id="syncPendingCount">0</div>
+        <div class="stat-label">待同步照片</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="syncTotalCount">0</div>
+        <div class="stat-label">全部照片</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>同步方式</label>
+      <select id="syncModeSelect" onchange="onSyncModeChange()">
+        <option value="export">📦 產生匯出檔（metadata.json）</option>
+        <option value="wifi">📡 WiFi 自動同步（需電腦接收端）</option>
+      </select>
+    </div>
+
+    <div id="wifiSettings" style="display:none;">
+      <div class="form-group">
+        <label>電腦 IP 位址</label>
+        <input type="text" id="computerIP" placeholder="例如: 192.168.1.100" value="">
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-large" id="syncStartBtn" onclick="startSync()">
+      🔄 開始同步
+    </button>
+
+    <div id="syncProgressArea" style="display:none;margin-top:12px;">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="syncProgressFill" style="width:0%;background:var(--primary);"></div>
+        <div class="progress-bar-text" id="syncProgressText">0%</div>
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary);text-align:center;margin-top:6px;" id="syncProgressDetail"></div>
+    </div>
+  </div>
+
+  <button class="btn btn-outline" onclick="routerGo('home')" style="margin-top:8px;">← 返回首頁</button>
+</div>
+
+<!-- ===== Page: Settings (簡易版) ===== -->
+<div class="page" id="pageSettings">
+  <div class="home-card">
+    <h2>⚙️ 設定</h2>
+    <div class="form-group">
+      <label>📸 照片壓縮品質</label>
+      <select id="compressionQuality">
+        <option value="1.0">原始品質 (100%)</option>
+        <option value="0.85" selected>高品質 (85%)</option>
+        <option value="0.6">中等 (60%)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>🔄 自動同步</label>
+      <select id="autoSyncSetting">
+        <option value="true">開啟</option>
+        <option value="false">關閉</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="saveSettings()">💾 儲存設定</button>
+    <button class="btn btn-outline" onclick="clearAllData()" style="margin-top:10px;border-color:var(--danger);color:var(--danger);">🗑️ 清除所有資料</button>
+  </div>
+  <button class="btn btn-outline" onclick="routerGo('home')" style="margin-top:8px;">← 返回首頁</button>
+</div>
+
+<!-- ===== 底部操作欄 ===== -->
+<div class="app-footer" id="appFooter">
+  <button class="btn btn-outline btn-small" onclick="routerGo('home')">🏠 首頁</button>
+  <button class="btn btn-outline btn-small" onclick="routerGo('sync')">⚡ 同步</button>
+</div>
+
+<!-- ===== 連線狀態 ===== -->
+<div class="connection-badge" id="connBadge">
+  <span class="dot online" id="connDot"></span>
+  <span id="connText">已連線</span>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   設備巡檢 PWA — 完整 SPA JavaScript
+   ============================================================ */
+
+// ===== 全域狀態 =====
+const STATE = {
+  restaurant: null,     // { code, name }
+  currentGroup: null,   // group name
+  currentDevice: null,  // device name
+  deviceInfo: null,     // device info from devices.json
+  status: 'normal',     // 'normal' or abnormal key
+  statusLabel: '正常',
+  note: '',
+  photoBlob: null,      // captured photo blob
+  photoDataUrl: null,   // preview data url
+  todayPhotos: [],      // today's photo records
+  capturedPhotos: [],   // batch photos before saving (continuous mode)
+};
+
+let DEVICES_DATA = null;  // loaded devices.json
+let DB = null;            // IndexedDB handle
+
+// ===== IndexedDB 初始化 =====
+const DB_NAME = 'EquipmentInspectionDB';
+const DB_VERSION = 1;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      // Store 1: photoRecords
+      if (!db.objectStoreNames.contains('photoRecords')) {
+        const store = db.createObjectStore('photoRecords', { keyPath: 'id' });
+        store.createIndex('restaurantCode', 'restaurantCode', { unique: false });
+        store.createIndex('date', 'date', { unique: false });
+        store.createIndex('synced', 'synced', { unique: false });
+        store.createIndex('deviceName', 'deviceName', { unique: false });
+        store.createIndex('restaurant_date', ['restaurantCode', 'date'], { unique: false });
+      }
+      // Store 2: syncQueue
+      if (!db.objectStoreNames.contains('syncQueue')) {
+        db.createObjectStore('syncQueue', { keyPath: 'id' });
+      }
+      // Store 3: appSettings
+      if (!db.objectStoreNames.contains('appSettings')) {
+        db.createObjectStore('appSettings', { keyPath: 'key' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// ===== IndexedDB 輔助函式 =====
+function dbSave(storeName, data) {
+  return new Promise((resolve, reject) => {
+    const tx = DB.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    const req = store.put(data);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbGetAll(storeName, indexName, value) {
+  return new Promise((resolve, reject) => {
+    const tx = DB.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const source = indexName ? store.index(indexName) : store;
+    const req = indexName ? source.getAll(value) : source.getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbGet(storeName, key) {
+  return new Promise((resolve, reject) => {
+    const tx = DB.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const req = store.get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbDelete(storeName, key) {
+  return new Promise((resolve, reject) => {
+    const tx = DB.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    const req = store.delete(key);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbClear(storeName) {
+  return new Promise((resolve, reject) => {
+    const tx = DB.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    const req = store.clear();
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// ===== 應用初始化 =====
+async function initApp() {
+  showLoading(true);
+
+  // 開啟 DB
+  DB = await openDB();
+
+  // 載入 devices.json
+  try {
+    const resp = await fetch('devices.json?_t=' + Date.now());
+    DEVICES_DATA = await resp.json();
+  } catch (e) {
+    console.error('無法載入 devices.json:', e);
+    showToast('⚠️ 無法載入設備資料，請確認網路連線');
+    return;
+  }
+
+  // 填入餐廳下拉
+  const sel = document.getElementById('restaurantSelect');
+  DEVICES_DATA.restaurants.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.code;
+    opt.textContent = `${r.code} ${r.name}`;
+    sel.appendChild(opt);
+  });
+
+  // 載入設定
+  await loadSettings();
+
+  // 更新今日統計
+  await updateTodayStats();
+
+  // 連線狀態監聽
+  initConnectionMonitor();
+
+  // 註冊 Service Worker
+  registerSW();
+
+  showLoading(false);
+
+  // 如果 URL hash 有指定頁面就跳轉
+  const hash = location.hash.replace('#', '');
+  if (hash) {
+    const page = hash.split('?')[0];
+    if (['groups','devices','camera','editor','confirm','sync','settings'].includes(page)) {
+      routerGo(page);
+    }
+  }
+}
+
+// ===== Loading 指示 =====
+function showLoading(show) {
+  document.getElementById('appHeader').style.display = show ? 'none' : 'flex';
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById(show ? 'pageLoading' : 'pageHome');
+  if (!el) {
+    // 沒有 loading page，直接用 home
+    if (!show) document.getElementById('pageHome').classList.add('active');
+    return;
+  }
+  if (show) el.classList.add('active');
+  else document.getElementById('pageHome').classList.add('active');
+}
+
+// ===== Router =====
+function routerGo(page, params) {
+  // 隱藏所有頁面
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page' + page.charAt(0).toUpperCase() + page.slice(1));
+  if (target) target.classList.add('active');
+
+  // 更新 header
+  const header = document.getElementById('headerTitle');
+  const backBtn = document.getElementById('backBtn');
+  const badge = document.getElementById('headerBadge');
+
+  backBtn.classList.remove('show');
+  badge.textContent = '';
+
+  switch (page) {
+    case 'home':
+      header.textContent = '設備巡檢拍照';
+      document.getElementById('appFooter').classList.add('show');
+      updateTodayStats();
+      break;
+    case 'groups':
+      header.textContent = STATE.restaurant ? `${STATE.restaurant.code} ${STATE.restaurant.name}` : '選擇設備類別';
+      backBtn.classList.add('show');
+      badge.textContent = STATE.restaurant ? `0/33` : '';
+      document.getElementById('appFooter').classList.remove('show');
+      renderGroups();
+      break;
+    case 'devices':
+      header.textContent = STATE.currentGroup || '選擇設備';
+      backBtn.classList.add('show');
+      badge.textContent = '';
+      document.getElementById('appFooter').classList.remove('show');
+      renderDevices();
+      break;
+    case 'camera':
+      header.textContent = '📷 拍照';
+      backBtn.classList.add('show');
+      badge.textContent = '';
+      document.getElementById('appFooter').classList.remove('show');
+      initCameraPage(params);
+      break;
+    case 'editor':
+      header.textContent = '✏️ 編輯照片';
+      backBtn.classList.remove('show');
+      badge.textContent = '';
+      document.getElementById('appFooter').classList.remove('show');
+      break;
+    case 'confirm':
+      header.textContent = '✅ 已儲存！';
+      backBtn.classList.remove('show');
+      badge.textContent = '';
+      document.getElementById('appFooter').classList.remove('show');
+      break;
+    case 'sync':
+      header.textContent = '⚡ 同步中心';
+      backBtn.classList.add('show');
+      badge.textContent = '';
+      document.getElementById('appFooter').classList.add('show');
+      updateSyncPage();
+      break;
+    case 'settings':
+      header.textContent = '⚙️ 設定';
+      backBtn.classList.add('show');
+      badge.textContent = '';
+      document.getElementById('appFooter').classList.add('show');
+      break;
+  }
+
+  location.hash = page;
+}
+
+function routerBack() {
+  const page = location.hash.replace('#', '') || 'home';
+
+  // 如果在拍照頁且有未儲存照片，警告使用者
+  if (page === 'camera' && STATE.capturedPhotos.length > 0) {
+    if (!confirm(`有 ${STATE.capturedPhotos.length} 張照片尚未儲存，確定要離開嗎？`)) {
+      return;
+    }
+  }
+
+  const backMap = {
+    'groups': 'home',
+    'devices': 'groups',
+    'camera': 'devices',
+    'editor': 'camera',
+    'confirm': 'home',
+    'sync': 'home',
+    'settings': 'home'
+  };
+  routerGo(backMap[page] || 'home');
+}
+
+// ===== 餐廳選擇 =====
+function onRestaurantChange() {
+  const sel = document.getElementById('restaurantSelect');
+  const val = sel.value;
+  if (!val) {
+    STATE.restaurant = null;
+    document.getElementById('startBtn').disabled = true;
+    return;
+  }
+  const found = DEVICES_DATA.restaurants.find(r => r.code === val);
+  STATE.restaurant = found || { code: val, name: '' };
+  document.getElementById('startBtn').disabled = false;
+
+  // 儲存最近使用
+  saveRecentRestaurant(val);
+
+  // 更新今日統計
+  updateTodayStats();
+}
+
+async function loadRecentRestaurants() {
+  const setting = await dbGet('appSettings', 'recentRestaurants');
+  return setting ? setting.value : [];
+}
+
+async function saveRecentRestaurant(code) {
+  let recent = await loadRecentRestaurants();
+  recent = recent.filter(r => r !== code);
+  recent.unshift(code);
+  if (recent.length > 5) recent = recent.slice(0, 5);
+  await dbSave('appSettings', { key: 'recentRestaurants', value: recent });
+  renderRecentRestaurants(recent);
+}
+
+function renderRecentRestaurants(recent) {
+  const container = document.getElementById('recentRestaurants');
+  if (!recent || recent.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = 'block';
+  // 保留第一個 span
+  while (container.children.length > 1) container.removeChild(container.lastChild);
+  recent.forEach(code => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-small';
+    btn.textContent = code;
+    btn.onclick = () => {
+      document.getElementById('restaurantSelect').value = code;
+      onRestaurantChange();
+    };
+    container.appendChild(btn);
+  });
+}
+
+// ===== 今日統計 =====
+async function updateTodayStats() {
+  const today = getDateStr();
+  const allRecords = await dbGetAll('photoRecords', 'date', today);
+  const pending = allRecords.filter(r => !r.synced);
+
+  document.getElementById('todayCount').textContent = allRecords.length;
+  document.getElementById('pendingSyncCount').textContent = pending.length;
+
+  STATE.todayPhotos = allRecords;
+}
+
+// ===== 群組選擇頁 =====
+function renderGroups() {
+  const grid = document.getElementById('groupGrid');
+  grid.innerHTML = '';
+
+  // 統計每台設備的已拍照片數
+  const doneCounts = {};
+  STATE.todayPhotos.forEach(p => {
+    doneCounts[p.deviceName] = (doneCounts[p.deviceName] || 0) + 1;
+  });
+
+  DEVICES_DATA.deviceGroups.forEach(g => {
+    const card = document.createElement('div');
+    card.className = 'group-card';
+
+    const totalDevices = g.devices.length;
+    const doneDevicesInGroup = g.devices.filter(d => doneCounts[d.name] > 0).length;
+    const totalPhotosInGroup = g.devices.reduce((sum, d) => sum + (doneCounts[d.name] || 0), 0);
+
+    if (doneDevicesInGroup === totalDevices && totalDevices > 0) {
+      card.classList.add('done');
+    }
+
+    const badge = document.createElement('div');
+    badge.className = 'badge' + (doneDevicesInGroup > 0 ? ' show' : '');
+    badge.textContent = `✓${doneDevicesInGroup}`;
+    card.appendChild(badge);
+
+    const icon = document.createElement('div');
+    icon.className = 'icon';
+    icon.textContent = g.icon;
+    card.appendChild(icon);
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = g.name;
+    card.appendChild(name);
+
+    // 顯示該群組的總照片張數
+    if (totalPhotosInGroup > 0) {
+      const photoCount = document.createElement('div');
+      photoCount.style.cssText = `
+        font-size:11px; color:var(--success); font-weight:600; margin-top:3px;
+      `;
+      photoCount.textContent = `${totalPhotosInGroup} 張`;
+      card.appendChild(photoCount);
+    }
+
+    card.onclick = () => {
+      STATE.currentGroup = g.name;
+      routerGo('devices');
+    };
+
+    grid.appendChild(card);
+  });
+}
+
+// ===== 設備列表頁 =====
+function renderDevices() {
+  const group = DEVICES_DATA.deviceGroups.find(g => g.name === STATE.currentGroup);
+  if (!group) { routerGo('groups'); return; }
+
+  document.getElementById('deviceGroupTitle').textContent =
+    `${group.icon} ${group.name} — 請點選設備開始拍照`;
+
+  const list = document.getElementById('deviceList');
+  list.innerHTML = '';
+
+  // 統計每台設備的已拍照片數
+  const doneCounts = {};
+  STATE.todayPhotos.forEach(p => {
+    doneCounts[p.deviceName] = (doneCounts[p.deviceName] || 0) + 1;
+  });
+
+  group.devices.forEach(d => {
+    const count = doneCounts[d.name] || 0;
+    const item = document.createElement('li');
+    item.className = 'device-item' + (count > 0 ? ' done' : '');
+
+    const statusIcon = document.createElement('div');
+    statusIcon.className = 'status-icon';
+    statusIcon.textContent = count > 0 ? '✓' : '○';
+    item.appendChild(statusIcon);
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = d.name;
+    item.appendChild(name);
+
+    // 顯示照片張數
+    if (count > 0) {
+      const countBadge = document.createElement('span');
+      countBadge.style.cssText = `
+        font-size:12px; color:var(--success); font-weight:600;
+        margin-left:auto; white-space:nowrap;
+      `;
+      countBadge.textContent = `${count} 張`;
+      item.appendChild(countBadge);
+    }
+
+    item.onclick = () => {
+      STATE.currentDevice = d.name;
+      STATE.deviceInfo = d;
+      routerGo('camera');
+    };
+
+    list.appendChild(item);
+  });
+
+  // 更新 badge（顯示已拍設備數／總設備數）
+  const doneDeviceCount = group.devices.filter(d => doneCounts[d.name] > 0).length;
+  document.getElementById('headerBadge').textContent =
+    `${doneDeviceCount}/${group.devices.length}`;
+}
+
+// ===== 拍照頁 =====
+function initCameraPage() {
+  const dev = STATE.deviceInfo;
+  if (!dev) { routerGo('devices'); return; }
+
+  document.getElementById('camDeviceName').textContent = dev.name;
+  document.getElementById('camDevicePath').textContent =
+    `${STATE.restaurant.code} › ${STATE.currentGroup} › ${dev.name}`;
+
+  // 重置拍照批次（保留設備資訊）
+  STATE.capturedPhotos = [];
+  STATE.status = 'normal';
+  STATE.statusLabel = '正常';
+  STATE.note = '';
+  document.getElementById('noteInput').value = '';
+  document.getElementById('photoPreview').innerHTML = `
+    <div class="placeholder">
+      <span class="icon">📸</span>
+      點擊上方按鈕拍照
+    </div>`;
+
+  // 隱藏縮圖區、停用完成按鈕
+  document.getElementById('thumbnailSection').style.display = 'none';
+  document.getElementById('thumbnailStrip').innerHTML = '';
+  document.getElementById('photoCountLabel').textContent = '共 0 張';
+  document.getElementById('finishBtn').disabled = true;
+  document.getElementById('finishBtn').textContent = '✅ 完成儲存（0 張）';
+
+  // 檢查 Web Share API 支援，決定是否顯示分享按鈕
+  const shareBtn = document.getElementById('shareBtn');
+  if (navigator.canShare && navigator.canShare({ files: [new File([], '')] })) {
+    shareBtn.style.display = 'block';
+    shareBtn.disabled = true;
+  } else {
+    shareBtn.style.display = 'none';
+  }
+
+  // 渲染狀態選項
+  renderStatusOptions();
+
+  // 更新檔名預覽
+  updateFileNamePreview();
+
+  // 重設相機 input
+  document.getElementById('cameraInput').value = '';
+}
+
+function renderStatusOptions() {
+  const container = document.getElementById('statusOptions');
+  container.innerHTML = '';
+
+  // 「正常」選項
+  const normalOpt = createStatusOption('正常', 'normal', '', 'none');
+  container.appendChild(normalOpt);
+
+  // 異常類型選項
+  const abnormalTypes = STATE.deviceInfo.abnormalTypes || [];
+  abnormalTypes.forEach(t => {
+    const optEl = createStatusOption(t.label, t.key, t.severity, t.label);
+    container.appendChild(optEl);
+  });
+
+  // 「✏️ 其他（自訂）」選項
+  const customOpt = createStatusOption('✏️ 其他（自訂）', 'custom', '', 'none');
+  container.appendChild(customOpt);
+}
+
+function createStatusOption(label, value, severity, displayLabel) {
+  const div = document.createElement('div');
+  div.className = 'status-option' + (value === STATE.status ? ' selected' : '');
+  div.dataset.value = value;
+
+  const radio = document.createElement('div');
+  radio.className = 'radio-circle';
+  div.appendChild(radio);
+
+  const labelEl = document.createElement('span');
+  labelEl.className = 'status-label';
+  labelEl.textContent = label;
+  div.appendChild(labelEl);
+
+  if (severity && severity !== 'none') {
+    const tag = document.createElement('span');
+    tag.className = 'severity-tag severity-' + severity;
+    tag.textContent = severity === 'critical' ? '🔴 危急' :
+                      severity === 'high' ? '🟠 高' :
+                      severity === 'medium' ? '🔵 中' : '🟢 低';
+    div.appendChild(tag);
+  }
+
+  div.onclick = () => {
+    // 取消所有選中（用 parentElement 取代 container）
+    const parent = div.parentElement;
+    if (parent) {
+      parent.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
+    }
+    div.classList.add('selected');
+
+    if (value === 'normal') {
+      STATE.status = 'normal';
+      STATE.statusLabel = '正常';
+    } else if (value === 'custom') {
+      STATE.status = 'custom';
+      STATE.statusLabel = '自訂';
+    } else {
+      STATE.status = value;
+      STATE.statusLabel = '異常_' + label;
+    }
+
+    // 顯示/隱藏自訂輸入框
+    const customInput = document.getElementById('customStatusInput');
+    if (customInput) {
+      customInput.style.display = value === 'custom' ? 'block' : 'none';
+    }
+
+    updateFileNamePreview();
+  };
+
+  return div;
+}
+
+// ===== 檔名產生 =====
+function sanitizeFileName(s) {
+  return s.replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '');
+}
+
+// 自訂狀態輸入變更時更新檔名
+function onCustomStatusChange() {
+  var val = document.getElementById('customStatusText').value.trim();
+  STATE.statusLabel = val ? '自訂_' + val : '自訂';
+  // 直接更新預覽（免 await）
+  var r = sanitizeFileName(STATE.restaurant.code);
+  var d = sanitizeFileName(STATE.currentDevice);
+  var st = sanitizeFileName(STATE.statusLabel);
+  var dt = getDateStr();
+  document.getElementById('fileNameText').textContent = r + '_' + d + '_' + st + '_' + dt + '_001.jpg';
+}
+
+function getDateStr() {
+  const d = new Date();
+  return d.getFullYear() +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    String(d.getDate()).padStart(2, '0');
+}
+
+async function calcNextSequenceForStatus(statusLabel) {
+  const date = getDateStr();
+  const restaurant = sanitizeFileName(STATE.restaurant.code);
+  const device = sanitizeFileName(STATE.currentDevice);
+  const status = sanitizeFileName(statusLabel);
+  const prefix = `${restaurant}_${device}_${status}_${date}`;
+
+  // 查詢今天已存入 DB 的同 prefix 記錄
+  const todayRecords = await dbGetAll('photoRecords', 'date', date);
+  const dbCount = todayRecords.filter(r => r.fileName && r.fileName.startsWith(prefix)).length;
+
+  // 加上已拍但尚未存入的同 prefix 照片（同一批次內連續編號）
+  const pendingCount = STATE.capturedPhotos.filter(p => p.fileName && p.fileName.startsWith(prefix)).length;
+
+  return dbCount + pendingCount + 1;
+}
+
+function generateFileName(seq) {
+  const r = sanitizeFileName(STATE.restaurant.code);
+  const d = sanitizeFileName(STATE.currentDevice);
+  const st = sanitizeFileName(STATE.statusLabel);
+  const dt = getDateStr();
+  return `${r}_${d}_${st}_${dt}_${String(seq).padStart(3, '0')}.jpg`;
+}
+
+async function updateFileNamePreview() {
+  const seq = await calcNextSequenceForStatus(STATE.statusLabel);
+  const fileName = generateFileName(seq);
+  document.getElementById('fileNameText').textContent = fileName;
+}
+
+// ===== 拍照 =====
+function takePhoto() {
+  const input = document.getElementById('cameraInput');
+  input.click();
+}
+
+function onPhotoTaken(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const dataUrl = e.target.result;
+
+    // 取得當下狀態資訊
+    let abnormalType = '';
+    if (STATE.status === 'custom') {
+      abnormalType = document.getElementById('customStatusText').value.trim() || '自訂';
+    } else if (STATE.status !== 'normal') {
+      const ab = STATE.deviceInfo.abnormalTypes.find(t => t.key === STATE.status);
+      abnormalType = ab ? ab.label : STATE.status.replace('異常_', '');
+    }
+
+    // 計算序號（考慮 DB 與已拍但未存的照片）
+    const seq = await calcNextSequenceForStatus(STATE.statusLabel);
+    const fileName = generateFileName(seq);
+
+    // 建立照片記錄
+    const photo = {
+      id: generateUUID(),
+      dataUrl: dataUrl,
+      blob: file,
+      status: STATE.status === 'normal' ? 'normal' : 'abnormal',
+      statusLabel: STATE.statusLabel,
+      abnormalType: abnormalType,
+      note: document.getElementById('noteInput').value || '',
+      fileName: fileName,
+      sequence: seq
+    };
+
+    STATE.capturedPhotos.push(photo);
+
+    // 顯示最新照片預覽
+    document.getElementById('photoPreview').innerHTML = `<img src="${dataUrl}" alt="照片預覽">`;
+
+    // 更新縮圖列與計數
+    renderThumbnails();
+    updatePhotoCount();
+
+    // 啟用完成按鈕
+    document.getElementById('finishBtn').disabled = false;
+    document.getElementById('finishBtn').textContent = `✅ 完成儲存（${STATE.capturedPhotos.length} 張）`;
+    updateShareBtnState();
+
+    // 清空相機 input 以便連續拍照
+    document.getElementById('cameraInput').value = '';
+
+    // 自動開啟編輯器編輯這張照片
+    editorOpen(STATE.capturedPhotos.length - 1);
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== 縮圖列渲染（連續拍照模式） =====
+function renderThumbnails() {
+  const strip = document.getElementById('thumbnailStrip');
+  strip.innerHTML = '';
+
+  STATE.capturedPhotos.forEach((photo, index) => {
+    const card = document.createElement('div');
+    card.style.cssText = `
+      flex-shrink:0; width:140px; border-radius:8px; overflow:hidden;
+      background:#e8e8e8; position:relative; scroll-snap-align:start;
+      box-shadow:var(--shadow);
+    `;
+
+    const img = document.createElement('img');
+    img.src = photo.dataUrl;
+    img.style.cssText = 'width:100%;height:90px;object-fit:cover;display:block;';
+    card.appendChild(img);
+
+    const label = document.createElement('div');
+    label.style.cssText = `
+      padding:4px 6px; font-size:11px; color:var(--text-secondary);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      background:var(--card);
+    `;
+    label.textContent = photo.statusLabel;
+    card.appendChild(label);
+
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '✕';
+    delBtn.style.cssText = `
+      position:absolute; top:4px; right:4px; width:22px; height:22px;
+      border:none; border-radius:50%; background:rgba(0,0,0,0.5);
+      color:white; font-size:12px; cursor:pointer; display:flex;
+      align-items:center; justify-content:center; line-height:1;
+    `;
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteCapturedPhoto(photo.id);
+    };
+    card.appendChild(delBtn);
+
+    strip.appendChild(card);
+  });
+
+  // 顯示/隱藏縮圖區
+  document.getElementById('thumbnailSection').style.display =
+    STATE.capturedPhotos.length > 0 ? 'block' : 'none';
+}
+
+function updatePhotoCount() {
+  document.getElementById('photoCountLabel').textContent = `共 ${STATE.capturedPhotos.length} 張`;
+}
+
+function deleteCapturedPhoto(id) {
+  STATE.capturedPhotos = STATE.capturedPhotos.filter(p => p.id !== id);
+
+  if (STATE.capturedPhotos.length === 0) {
+    // 沒有照片了，恢復初始狀態
+    document.getElementById('photoPreview').innerHTML = `
+      <div class="placeholder">
+        <span class="icon">📸</span>
+        點擊上方按鈕拍照
+      </div>`;
+    document.getElementById('finishBtn').disabled = true;
+    document.getElementById('finishBtn').textContent = '✅ 完成儲存（0 張）';
+    document.getElementById('thumbnailSection').style.display = 'none';
+    updateShareBtnState();
+  } else {
+    // 顯示最新一張為預覽
+    const last = STATE.capturedPhotos[STATE.capturedPhotos.length - 1];
+    document.getElementById('photoPreview').innerHTML = `<img src="${last.dataUrl}" alt="照片預覽">`;
+    renderThumbnails();
+    updatePhotoCount();
+    document.getElementById('finishBtn').textContent = `✅ 完成儲存（${STATE.capturedPhotos.length} 張）`;
+    updateShareBtnState();
+  }
+}
+
+// ===== 批次儲存所有照片（連續拍照模式） =====
+async function finishBatch() {
+  if (STATE.capturedPhotos.length === 0) {
+    showToast('⚠️ 尚未拍照');
+    return;
+  }
+
+  const btn = document.getElementById('finishBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 儲存中...';
+
+  let saved = 0;
+  for (const photo of STATE.capturedPhotos) {
+    try {
+      const record = {
+        id: photo.id,
+        restaurantCode: STATE.restaurant.code,
+        restaurantName: STATE.restaurant.name,
+        deviceGroup: STATE.currentGroup,
+        deviceName: STATE.currentDevice,
+        deviceKey: STATE.deviceInfo.key,
+        status: photo.status,
+        statusLabel: photo.statusLabel,
+        abnormalType: photo.abnormalType,
+        note: photo.note,
+        fileName: photo.fileName,
+        date: getDateStr(),
+        timestamp: Date.now(),
+        sequence: photo.sequence,
+        synced: false,
+        cacheKey: 'photo_' + photo.id,
+        fileSize: (photo.editedBlob || photo.blob) ? (photo.editedBlob || photo.blob).size : 0
+      };
+
+      // 儲存到 IndexedDB
+      await dbSave('photoRecords', record);
+
+      // 照片 blob 存入 Cache API
+      try {
+        const cache = await caches.open('equipment-inspection-v1');
+        const imageData = photo.editedBlob || photo.blob || await dataURLToBlob(photo.dataUrl);
+        const contentType = photo.editedBlob ? 'image/png' : 'image/jpeg';
+        const photoResponse = new Response(imageData, {
+          headers: { 'Content-Type': contentType }
+        });
+        await cache.put(record.cacheKey, photoResponse);
+      } catch (e) {
+        console.warn('Cache API 儲存失敗 (可能離線):', e);
+      }
+
+      // 加入同步佇列
+      await dbSave('syncQueue', {
+        id: photo.id,
+        fileName: photo.fileName,
+        retryCount: 0,
+        lastAttempt: 0,
+        error: ''
+      });
+
+      saved++;
+    } catch (e) {
+      console.error('儲存失敗:', photo.fileName, e);
+    }
+  }
+
+  // 清除批次資料
+  STATE.capturedPhotos = [];
+  updateShareBtnState();
+
+  // 更新今日統計
+  await updateTodayStats();
+
+  // 顯示完成提示（含設備名稱與張數）
+  const deviceName = STATE.currentDevice;
+  showToast(`✅ ${deviceName} x ${saved} 張已完成`);
+
+  // 跳回設備列表
+  routerGo('devices');
+}
+
+// ===== 分享照片（Web Share API） =====
+function updateShareBtnState() {
+  const btn = document.getElementById('shareBtn');
+  if (btn) {
+    btn.disabled = STATE.capturedPhotos.length === 0;
+  }
+}
+
+async function shareCurrentPhoto() {
+  const photos = STATE.capturedPhotos;
+  if (photos.length === 0) {
+    showToast('⚠️ 沒有照片可分享');
+    return;
+  }
+
+  // 分享目前顯示在預覽區的最新照片
+  const photo = photos[photos.length - 1];
+  const blob = photo.blob || await dataURLToBlob(photo.dataUrl);
+  const fileName = photo.fileName || 'photo.jpg';
+
+  if (!navigator.canShare || !navigator.canShare({ files: [new File([], '')] })) {
+    showToast('⚠️ 此瀏覽器不支援分享');
+    return;
+  }
+
+  // 確保為 JPEG 格式
+  let shareBlob;
+  if (blob.type === 'image/jpeg') {
+    shareBlob = blob;
+  } else {
+    // 透過 Canvas 轉換為 JPEG
+    try {
+      shareBlob = await blobToJPEG(blob);
+    } catch (e) {
+      shareBlob = blob; // 降級使用原始 blob
+    }
+  }
+
+  const file = new File([shareBlob], fileName, { type: 'image/jpeg' });
+
+  try {
+    await navigator.share({
+      files: [file],
+      title: fileName
+    });
+  } catch (e) {
+    // 使用者取消分享不用處理
+    if (e.name !== 'AbortError') {
+      console.warn('分享失敗:', e);
+    }
+  }
+}
+
+function blobToJPEG(blob) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      canvas.width = this.naturalWidth || this.width;
+      canvas.height = this.naturalHeight || this.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(this, 0, 0);
+      canvas.toBlob((jpegBlob) => {
+        if (jpegBlob) resolve(jpegBlob);
+        else reject(new Error('JPEG 轉換失敗'));
+      }, 'image/jpeg', 0.92);
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = function() {
+      URL.revokeObjectURL(img.src);
+      reject(new Error('無法載入圖片'));
+    };
+    img.src = URL.createObjectURL(blob);
+  });
+}
+
+// ===== 確認頁 =====
+function showConfirmPage(record) {
+  document.getElementById('confirmRestaurant').textContent = `${record.restaurantCode} ${record.restaurantName}`;
+  document.getElementById('confirmDevice').textContent = record.deviceName;
+  document.getElementById('confirmStatus').textContent = record.statusLabel;
+  document.getElementById('confirmNote').textContent = record.note || '(無)';
+  document.getElementById('confirmFileName').textContent = record.fileName;
+
+  if (STATE.photoDataUrl) {
+    const img = document.getElementById('confirmPhoto');
+    img.src = STATE.photoDataUrl;
+    img.style.display = 'block';
+  }
+
+  // 更新進度條
+  updateTodayStats().then(() => {
+    const total = 33;
+    const done = STATE.todayPhotos.length;
+    const pct = Math.min(100, Math.round((done / total) * 100));
+    document.getElementById('confirmProgressFill').style.width = pct + '%';
+    document.getElementById('confirmProgressText').textContent = `${done} / ${total}`;
+  });
+
+  routerGo('confirm');
+}
+
+// ===== 同步頁 =====
+async function updateSyncPage() {
+  const allRecords = await dbGetAll('photoRecords');
+  const pending = allRecords.filter(r => !r.synced);
+  document.getElementById('syncPendingCount').textContent = pending.length;
+  document.getElementById('syncTotalCount').textContent = allRecords.length;
+  onSyncModeChange();
+}
+
+function onSyncModeChange() {
+  const mode = document.getElementById('syncModeSelect').value;
+  document.getElementById('wifiSettings').style.display = mode === 'wifi' ? 'block' : 'none';
+}
+
+async function startSync() {
+  const mode = document.getElementById('syncModeSelect').value;
+  const btn = document.getElementById('syncStartBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 同步中...';
+
+  try {
+    if (mode === 'export') {
+      await doExportSync();
+    } else if (mode === 'wifi') {
+      await doWiFiSync();
+    }
+  } catch (e) {
+    showToast('❌ 同步失敗: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔄 開始同步';
+  document.getElementById('syncProgressArea').style.display = 'none';
+  updateSyncPage();
+}
+
+async function doExportSync() {
+  const allRecords = await dbGetAll('photoRecords');
+  const unsynced = allRecords.filter(r => !r.synced);
+
+  if (unsynced.length === 0) {
+    showToast('✅ 沒有待同步的照片');
+    return;
+  }
+
+  // 顯示進度
+  const progressArea = document.getElementById('syncProgressArea');
+  progressArea.style.display = 'block';
+  updateSyncProgress(0, unsynced.length, '準備中...');
+
+  // 建立 metadata.json
+  const metadata = {
+    exportVersion: '1.0',
+    exportedAt: new Date().toISOString(),
+    deviceName: navigator.userAgent || 'PWA 手機',
+    totalPhotos: unsynced.length,
+    restaurantCode: STATE.restaurant ? STATE.restaurant.code : '',
+    restaurantName: STATE.restaurant ? STATE.restaurant.name : '',
+    date: getDateStr(),
+    photos: []
+  };
+
+  let exported = 0;
+  for (const record of unsynced) {
+    try {
+      // 從 Cache API 讀取照片 blob
+      const cache = await caches.open('equipment-inspection-v1');
+      const cachedResp = await cache.match(record.cacheKey);
+      let photoDataUrl = null;
+      if (cachedResp) {
+        const blob = await cachedResp.blob();
+        photoDataUrl = await blobToDataURL(blob);
+      }
+
+      metadata.photos.push({
+        id: record.id,
+        fileName: record.fileName,
+        deviceGroup: record.deviceGroup,
+        deviceName: record.deviceName,
+        deviceKey: record.deviceKey,
+        status: record.status,
+        statusLabel: record.statusLabel,
+        abnormalType: record.abnormalType || '',
+        note: record.note || '',
+        timestamp: record.timestamp,
+        date: record.date,
+        sequence: record.sequence,
+        photoDataUrl: photoDataUrl // base64 照片資料
+      });
+
+      exported++;
+      updateSyncProgress(exported, unsynced.length, `${record.fileName}`);
+
+      // 標記已同步
+      record.synced = true;
+      await dbSave('photoRecords', record);
+      await dbDelete('syncQueue', record.id);
+
+    } catch (e) {
+      console.warn('匯出失敗:', record.fileName, e);
+    }
+  }
+
+  // 下載 metadata.json
+  const jsonStr = JSON.stringify(metadata, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `metadata_${getDateStr()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast(`✅ 匯出完成！共 ${exported} 張照片`);
+}
+
+async function doWiFiSync() {
+  const ip = document.getElementById('computerIP').value.trim();
+  if (!ip) {
+    showToast('⚠️ 請輸入電腦 IP 位址');
+    throw new Error('IP required');
+  }
+
+  const allRecords = await dbGetAll('photoRecords');
+  const unsynced = allRecords.filter(r => !r.synced);
+
+  if (unsynced.length === 0) {
+    showToast('✅ 沒有待同步的照片');
+    return;
+  }
+
+  const progressArea = document.getElementById('syncProgressArea');
+  progressArea.style.display = 'block';
+
+  let uploaded = 0;
+  for (const record of unsynced) {
+    try {
+      const cache = await caches.open('equipment-inspection-v1');
+      const cachedResp = await cache.match(record.cacheKey);
+      let photoBlob = null;
+
+      if (cachedResp) {
+        photoBlob = await cachedResp.blob();
+      } else if (STATE.photoBlob) {
+        photoBlob = STATE.photoBlob;
+      }
+
+      if (!photoBlob) {
+        console.warn('無法讀取照片:', record.fileName);
+        continue;
+      }
+
+      // 建立 FormData
+      const formData = new FormData();
+      formData.append('file', photoBlob, record.fileName);
+      formData.append('metadata', JSON.stringify(record));
+
+      const resp = await fetch(`http://${ip}:8080/api/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (resp.ok) {
+        record.synced = true;
+        await dbSave('photoRecords', record);
+        await dbDelete('syncQueue', record.id);
+        uploaded++;
+        updateSyncProgress(uploaded, unsynced.length, `✅ ${record.fileName}`);
+      } else {
+        updateSyncProgress(uploaded, unsynced.length, `❌ ${record.fileName} (${resp.status})`);
+      }
+    } catch (e) {
+      updateSyncProgress(uploaded, unsynced.length, `❌ ${record.fileName} (連線失敗)`);
+      console.warn('上傳失敗:', record.fileName, e);
+    }
+  }
+
+  showToast(`✅ WiFi 同步完成！上傳 ${uploaded}/${unsynced.length} 張`);
+}
+
+function updateSyncProgress(current, total, detail) {
+  const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+  document.getElementById('syncProgressFill').style.width = pct + '%';
+  document.getElementById('syncProgressText').textContent = `${current} / ${total} (${pct}%)`;
+  document.getElementById('syncProgressDetail').textContent = detail;
+}
+
+// ===== 設定頁 =====
+async function loadSettings() {
+  const quality = await dbGet('appSettings', 'compressionQuality');
+  if (quality) document.getElementById('compressionQuality').value = String(quality.value);
+
+  const autoSync = await dbGet('appSettings', 'autoSync');
+  if (autoSync) document.getElementById('autoSyncSetting').value = String(autoSync.value);
+
+  const ip = await dbGet('appSettings', 'computerIP');
+  if (ip) document.getElementById('computerIP').value = ip.value;
+
+  // 最近使用
+  const recent = await loadRecentRestaurants();
+  renderRecentRestaurants(recent);
+}
+
+async function saveSettings() {
+  await dbSave('appSettings', { key: 'compressionQuality', value: parseFloat(document.getElementById('compressionQuality').value) });
+  await dbSave('appSettings', { key: 'autoSync', value: document.getElementById('autoSyncSetting').value === 'true' });
+  await dbSave('appSettings', { key: 'computerIP', value: document.getElementById('computerIP').value.trim() });
+  showToast('✅ 設定已儲存');
+}
+
+async function clearAllData() {
+  if (!confirm('確定要清除所有資料嗎？此操作無法還原！')) return;
+  await dbClear('photoRecords');
+  await dbClear('syncQueue');
+  await dbClear('appSettings');
+
+  // 清除 Cache API 中的照片
+  try {
+    const cache = await caches.open('equipment-inspection-v1');
+    const keys = await cache.keys();
+    for (const req of keys) {
+      if (req.url.includes('photo_')) {
+        await cache.delete(req);
+      }
+    }
+  } catch (e) {}
+
+  showToast('🗑️ 所有資料已清除');
+  updateTodayStats();
+}
+
+// ===== 連線監控 =====
+function initConnectionMonitor() {
+  function updateConn() {
+    const online = navigator.onLine;
+    document.getElementById('connDot').className = 'dot ' + (online ? 'online' : 'offline');
+    document.getElementById('connText').textContent = online ? '已連線' : '離線模式';
+  }
+  window.addEventListener('online', updateConn);
+  window.addEventListener('offline', updateConn);
+  updateConn();
+}
+
+// ===== Service Worker 註冊 =====
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => {
+        console.log('SW 註冊成功:', reg.scope);
+        // 檢查更新
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              showToast('🔄 有新版本可用，請重新整理頁面');
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('SW 註冊失敗:', err));
+  }
+}
+
+// ===== 工具函式 =====
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+function dataURLToBlob(dataUrl) {
+  return new Promise((resolve) => {
+    const arr = dataUrl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
+    resolve(new Blob([u8arr], { type: mime }));
+  });
+}
+
+function blobToDataURL(blob) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ===== 相片編輯器 (Canvas Photo Editor) =====
+const EDITOR = {
+  photoIndex: -1,
+  image: null,
+  tool: 'pen',
+  color: '#ea4335',
+  lineWidth: 8,
+  fontSize: 20,
+  actions: [],       // undo stack: ImageData[]
+  isDrawing: false,
+  lastPoint: null,
+  circleCenter: null,
+  arrowStart: null,
+};
+
+function editorOpen(photoIndex) {
+  EDITOR.photoIndex = photoIndex;
+  EDITOR.actions = [];
+  EDITOR.circleCenter = null;
+  EDITOR.arrowStart = null;
+  EDITOR.isDrawing = false;
+
+  document.getElementById('editorUndoBtn').disabled = true;
+
+  const photo = STATE.capturedPhotos[photoIndex];
+  if (!photo) { showToast('⚠️ 找不到照片'); return; }
+
+  // 使用原始完整 dataUrl（未壓縮）
+  const src = photo.originalDataUrl || photo.dataUrl;
+
+  const img = new Image();
+  img.onload = function() {
+    EDITOR.image = this;
+
+    let w = this.naturalWidth || this.width;
+    let h = this.naturalHeight || this.height;
+
+    // 限制最大 2048px 以維持效能
+    const MAX_DIM = 2048;
+    if (w > MAX_DIM || h > MAX_DIM) {
+      const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
+      w = Math.round(w * ratio);
+      h = Math.round(h * ratio);
+    }
+
+    // 背景 Canvas：顯示原始照片
+    const bgCanvas = document.getElementById('editorBgCanvas');
+    bgCanvas.width = w;
+    bgCanvas.height = h;
+    const bgCtx = bgCanvas.getContext('2d');
+    bgCtx.drawImage(this, 0, 0, w, h);
+
+    // 繪圖 Canvas：透明標記圖層
+    const drawCanvas = document.getElementById('editorDrawCanvas');
+    drawCanvas.width = w;
+    drawCanvas.height = h;
+    drawCanvas.getContext('2d').clearRect(0, 0, w, h);
+
+    // 設定預設工具與顏色
+    editorSetTool('pen');
+    editorSetColor('#ea4335');
+    document.getElementById('editorDrawCanvas').style.cursor = 'crosshair';
+
+    // 綁定繪圖事件
+    bindEditorEvents();
+
+    routerGo('editor');
+  };
+  img.onerror = function() { showToast('⚠️ 無法載入照片'); };
+  img.src = src;
+}
+
+function editorSetTool(tool) {
+  EDITOR.tool = tool;
+  document.querySelectorAll('.editor-tool-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.tool === tool);
+  });
+  if (tool !== 'circle') EDITOR.circleCenter = null;
+  if (tool !== 'arrow') EDITOR.arrowStart = null;
+}
+
+function editorSetColor(color) {
+  EDITOR.color = color;
+  document.querySelectorAll('.editor-color-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.color === color);
+  });
+}
+
+function editorSetSize(size) {
+  EDITOR.lineWidth = size;
+  document.querySelectorAll('.editor-size-btn').forEach(function(b) {
+    b.classList.toggle('active', parseInt(b.dataset.size) === size);
+  });
+}
+
+function editorUndo() {
+  if (EDITOR.actions.length === 0) return;
+  EDITOR.actions.pop();
+  const drawCanvas = document.getElementById('editorDrawCanvas');
+  const ctx = drawCanvas.getContext('2d');
+  if (EDITOR.actions.length === 0) {
+    ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    document.getElementById('editorUndoBtn').disabled = true;
+  } else {
+    ctx.putImageData(EDITOR.actions[EDITOR.actions.length - 1], 0, 0);
+  }
+}
+
+function editorClear() {
+  const drawCanvas = document.getElementById('editorDrawCanvas');
+  const ctx = drawCanvas.getContext('2d');
+  // 儲存清除前的狀態（以支援 undo）
+  const currentData = ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
+  EDITOR.actions.push(currentData);
+  ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+  document.getElementById('editorUndoBtn').disabled = false;
+  EDITOR.circleCenter = null;
+  EDITOR.arrowStart = null;
+}
+
+function editorCancel() {
+  const idx = EDITOR.photoIndex;
+  if (idx >= 0 && idx < STATE.capturedPhotos.length) {
+    STATE.capturedPhotos.splice(idx, 1);
+    renderThumbnails();
+    updatePhotoCount();
+    const btn = document.getElementById('finishBtn');
+    if (STATE.capturedPhotos.length === 0) {
+      btn.disabled = true;
+      btn.textContent = '✅ 完成儲存（0 張）';
+      document.getElementById('photoPreview').innerHTML =
+        '<div class="placeholder"><span class="icon">📸</span>點擊上方按鈕拍照</div>';
+    } else {
+      btn.textContent = '✅ 完成儲存（' + STATE.capturedPhotos.length + ' 張）';
+    }
+    updateShareBtnState();
+  }
+  routerGo('camera');
+}
+
+async function editorConfirm() {
+  const photo = STATE.capturedPhotos[EDITOR.photoIndex];
+  if (!photo) { showToast('⚠️ 照片資料遺失'); return; }
+
+  const bgCanvas = document.getElementById('editorBgCanvas');
+  const drawCanvas = document.getElementById('editorDrawCanvas');
+
+  // 合成 Canvas：原始照片 + 標記
+  const compositeCanvas = document.createElement('canvas');
+  compositeCanvas.width = bgCanvas.width;
+  compositeCanvas.height = bgCanvas.height;
+  const compositeCtx = compositeCanvas.getContext('2d');
+
+  compositeCtx.drawImage(bgCanvas, 0, 0);
+  compositeCtx.drawImage(drawCanvas, 0, 0);
+
+  showToast('⏳ 儲存中...');
+
+  // 產出最終 PNG + 立即存入 DB
+  compositeCanvas.toBlob(async function(blob) {
+    photo.editedBlob = blob;
+    photo.editedDataUrl = URL.createObjectURL(blob);
+    photo.originalDataUrl = photo.dataUrl;
+    photo.dataUrl = photo.editedDataUrl;
+
+    try {
+      // 建立完整記錄
+      const record = {
+        id: photo.id,
+        restaurantCode: STATE.restaurant.code,
+        restaurantName: STATE.restaurant.name,
+        deviceGroup: STATE.currentGroup,
+        deviceName: STATE.currentDevice,
+        deviceKey: STATE.deviceInfo.key,
+        status: photo.status,
+        statusLabel: photo.statusLabel,
+        abnormalType: photo.abnormalType,
+        note: photo.note,
+        fileName: photo.fileName,
+        date: getDateStr(),
+        timestamp: Date.now(),
+        sequence: photo.sequence,
+        synced: false,
+        cacheKey: 'photo_' + photo.id,
+        fileSize: blob.size
+      };
+
+      // 儲存到 IndexedDB
+      await dbSave('photoRecords', record);
+
+      // 快取到 Cache API
+      try {
+        const cache = await caches.open('equipment-inspection-v1');
+        const photoResponse = new Response(blob, {
+          headers: { 'Content-Type': 'image/png' }
+        });
+        await cache.put(record.cacheKey, photoResponse);
+      } catch (e) {
+        console.warn('Cache API 儲存失敗:', e);
+      }
+
+      // 加入同步佇列
+      await dbSave('syncQueue', {
+        id: photo.id,
+        fileName: photo.fileName,
+        retryCount: 0,
+        lastAttempt: 0,
+        error: ''
+      });
+
+      // 從批次中移除（已儲存完成）
+      STATE.capturedPhotos = STATE.capturedPhotos.filter(p => p.id !== photo.id);
+
+      // 更新今日統計
+      await updateTodayStats();
+
+      showToast('✅ 已儲存！');
+
+      // 更新拍照頁面
+      if (STATE.capturedPhotos.length > 0) {
+        const last = STATE.capturedPhotos[STATE.capturedPhotos.length - 1];
+        document.getElementById('photoPreview').innerHTML =
+          '<img src="' + last.dataUrl + '" alt="照片預覽">';
+        document.getElementById('finishBtn').textContent = '✅ 完成儲存（' + STATE.capturedPhotos.length + ' 張）';
+        document.getElementById('finishBtn').disabled = false;
+      } else {
+        document.getElementById('photoPreview').innerHTML =
+          '<div class="placeholder"><span class="icon">📸</span>點擊上方按鈕拍照</div>';
+        document.getElementById('finishBtn').disabled = true;
+        document.getElementById('finishBtn').textContent = '✅ 完成儲存（0 張）';
+      }
+      updateShareBtnState();
+      renderThumbnails();
+      updatePhotoCount();
+
+      routerGo('camera');
+    } catch (e) {
+      console.error('儲存失敗:', e);
+      showToast('❌ 儲存失敗: ' + e.message);
+    }
+  }, 'image/png');
+}
+
+// ===== Canvas 繪圖事件處理 =====
+function getCanvasPoint(clientX, clientY) {
+  const canvas = document.getElementById('editorDrawCanvas');
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (clientX - rect.left) * (canvas.width / rect.width),
+    y: (clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function saveUndoState() {
+  const drawCanvas = document.getElementById('editorDrawCanvas');
+  const ctx = drawCanvas.getContext('2d');
+  EDITOR.actions.push(ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height));
+  document.getElementById('editorUndoBtn').disabled = false;
+}
+
+let _editorEventsBound = false;
+
+function bindEditorEvents() {
+  if (_editorEventsBound) return;
+  _editorEventsBound = true;
+  const canvas = document.getElementById('editorDrawCanvas');
+  canvas.addEventListener('mousedown', onEditorMouseDown);
+  canvas.addEventListener('mousemove', onEditorMouseMove);
+  canvas.addEventListener('mouseup', onEditorMouseUp);
+  canvas.addEventListener('mouseleave', onEditorMouseUp);
+  canvas.addEventListener('touchstart', onEditorTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onEditorTouchMove, { passive: false });
+  canvas.addEventListener('touchend', onEditorTouchEnd, { passive: false });
+}
+
+function onEditorMouseDown(e) {
+  e.preventDefault();
+  const pt = getCanvasPoint(e.clientX, e.clientY);
+
+  if (EDITOR.tool === 'circle') {
+    if (!EDITOR.circleCenter) {
+      EDITOR.circleCenter = pt;
+      showToast('⭕ 再點一次設定圓形大小');
+    } else {
+      const radius = Math.sqrt(
+        Math.pow(pt.x - EDITOR.circleCenter.x, 2) +
+        Math.pow(pt.y - EDITOR.circleCenter.y, 2)
+      );
+      saveUndoState();
+      drawCircle(EDITOR.circleCenter.x, EDITOR.circleCenter.y, radius);
+      EDITOR.circleCenter = null;
+    }
+    return;
+  }
+
+  if (EDITOR.tool === 'arrow') {
+    EDITOR.arrowStart = pt;
+    return;
+  }
+
+  if (EDITOR.tool === 'text') {
+    var text = prompt('請輸入文字：');
+    if (text && text.trim()) {
+      saveUndoState();
+      drawText(pt.x, pt.y, text.trim());
+    }
+    return;
+  }
+
+  // Pen / Eraser
+  EDITOR.isDrawing = true;
+  EDITOR.lastPoint = pt;
+  saveUndoState();
+}
+
+function onEditorMouseMove(e) {
+  if (!EDITOR.isDrawing) return;
+  e.preventDefault();
+
+  const pt = getCanvasPoint(e.clientX, e.clientY);
+  const canvas = document.getElementById('editorDrawCanvas');
+  const ctx = canvas.getContext('2d');
+
+  ctx.beginPath();
+  ctx.moveTo(EDITOR.lastPoint.x, EDITOR.lastPoint.y);
+  ctx.lineTo(pt.x, pt.y);
+
+  if (EDITOR.tool === 'eraser') {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.strokeStyle = 'rgba(0,0,0,1)';
+    ctx.lineWidth = EDITOR.lineWidth * 4;
+  } else {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = EDITOR.color;
+    ctx.lineWidth = EDITOR.lineWidth;
+  }
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+  ctx.globalCompositeOperation = 'source-over';
+
+  EDITOR.lastPoint = pt;
+}
+
+function onEditorMouseUp(e) {
+  if (EDITOR.isDrawing) {
+    EDITOR.isDrawing = false;
+    return;
+  }
+
+  // Arrow tool: 滑鼠放開時繪製箭頭
+  if (EDITOR.tool === 'arrow' && EDITOR.arrowStart) {
+    const pt = getCanvasPoint(e.clientX, e.clientY);
+    const dx = pt.x - EDITOR.arrowStart.x;
+    const dy = pt.y - EDITOR.arrowStart.y;
+    if (Math.sqrt(dx*dx + dy*dy) > 5) {
+      saveUndoState();
+      drawArrow(EDITOR.arrowStart.x, EDITOR.arrowStart.y, pt.x, pt.y);
+    }
+    EDITOR.arrowStart = null;
+  }
+}
+
+function onEditorTouchStart(e) {
+  e.preventDefault();
+  if (e.touches.length === 0) return;
+  const t = e.touches[0];
+  document.getElementById('editorDrawCanvas')
+    .dispatchEvent(new MouseEvent('mousedown', { clientX: t.clientX, clientY: t.clientY }));
+}
+
+function onEditorTouchMove(e) {
+  e.preventDefault();
+  if (e.touches.length === 0) return;
+  const t = e.touches[0];
+  document.getElementById('editorDrawCanvas')
+    .dispatchEvent(new MouseEvent('mousemove', { clientX: t.clientX, clientY: t.clientY }));
+}
+
+function onEditorTouchEnd(e) {
+  e.preventDefault();
+
+  // Arrow tool: 需要從 touch 取得放開位置
+  if (EDITOR.tool === 'arrow' && EDITOR.arrowStart && e.changedTouches.length > 0) {
+    const t = e.changedTouches[0];
+    const pt = getCanvasPoint(t.clientX, t.clientY);
+    const dx = pt.x - EDITOR.arrowStart.x;
+    const dy = pt.y - EDITOR.arrowStart.y;
+    if (Math.sqrt(dx*dx + dy*dy) > 5) {
+      saveUndoState();
+      drawArrow(EDITOR.arrowStart.x, EDITOR.arrowStart.y, pt.x, pt.y);
+    }
+    EDITOR.arrowStart = null;
+    return;
+  }
+
+  // Circle tool (第二點)
+  if (EDITOR.tool === 'circle' && EDITOR.circleCenter && e.changedTouches.length > 0) {
+    const t = e.changedTouches[0];
+    document.getElementById('editorDrawCanvas')
+      .dispatchEvent(new MouseEvent('mousedown', { clientX: t.clientX, clientY: t.clientY }));
+    return;
+  }
+
+  // Pen / Eraser
+  document.getElementById('editorDrawCanvas')
+    .dispatchEvent(new MouseEvent('mouseup', {}));
+}
+
+// ===== 繪圖工具核心函式 =====
+function drawCircle(cx, cy, radius) {
+  const ctx = document.getElementById('editorDrawCanvas').getContext('2d');
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = EDITOR.color;
+  ctx.lineWidth = EDITOR.lineWidth;
+  ctx.stroke();
+}
+
+function drawArrow(x1, y1, x2, y2) {
+  const ctx = document.getElementById('editorDrawCanvas').getContext('2d');
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.sqrt(dx*dx + dy*dy);
+  if (len < 5) return;
+
+  const headLen = Math.min(18, len * 0.25);
+  const angle = Math.atan2(dy, dx);
+
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.strokeStyle = EDITOR.color;
+  ctx.fillStyle = EDITOR.color;
+  ctx.lineWidth = EDITOR.lineWidth;
+  ctx.lineCap = 'round';
+
+  // 箭身線條
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+
+  // 箭頭三角形
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(
+    x2 - headLen * Math.cos(angle - Math.PI / 6),
+    y2 - headLen * Math.sin(angle - Math.PI / 6)
+  );
+  ctx.lineTo(
+    x2 - headLen * Math.cos(angle + Math.PI / 6),
+    y2 - headLen * Math.sin(angle + Math.PI / 6)
+  );
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawText(x, y, text) {
+  const ctx = document.getElementById('editorDrawCanvas').getContext('2d');
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.font = 'bold ' + EDITOR.fontSize + 'px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.textBaseline = 'top';
+
+  // 量測文字寬度
+  var metrics = ctx.measureText(text);
+  var padding = 6;
+  var bgX = x - padding;
+  var bgY = y - EDITOR.fontSize - padding;
+  var bgW = metrics.width + padding * 2;
+  var bgH = EDITOR.fontSize + padding * 2;
+
+  // 半透明黑色背景
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(bgX, bgY, bgW, bgH);
+
+  // 繪製文字
+  ctx.fillStyle = EDITOR.color;
+  ctx.fillText(text, x, y - EDITOR.fontSize);
+}
+
+// ===== 啟動 =====
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
