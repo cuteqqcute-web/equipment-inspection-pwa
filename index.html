@@ -2305,22 +2305,23 @@ function initConnectionMonitor() {
 
 // ===== Service Worker 註冊 =====
 function registerSW() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => {
-        console.log('SW 註冊成功:', reg.scope);
-        // 檢查更新
-        reg.addEventListener('updatefound', () => {
-          const newSW = reg.installing;
-          newSW.addEventListener('statechange', () => {
-            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-              showToast('🔄 有新版本可用，請重新整理頁面');
-            }
-          });
-        });
-      })
-      .catch(err => console.warn('SW 註冊失敗:', err));
-  }
+  // [測試中] 暫時關閉 SW 註冊，確認是否為 SW 造成問題
+  // if ('serviceWorker' in navigator) {
+  //   navigator.serviceWorker.register('sw.js')
+  //     .then(reg => {
+  //       console.log('SW 註冊成功:', reg.scope);
+  //       // 檢查更新
+  //       reg.addEventListener('updatefound', () => {
+  //         const newSW = reg.installing;
+  //         newSW.addEventListener('statechange', () => {
+  //           if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+  //             showToast('🔄 有新版本可用，請重新整理頁面');
+  //           }
+  //         });
+  //       });
+  //     })
+  //     .catch(err => console.warn('SW 註冊失敗:', err));
+  // }
 }
 
 // ===== 工具函式 =====
