@@ -8,10 +8,9 @@
    ============================================================ */
 
 // [CFO] 低維護：每次修改 sw.js 時遞增此版本號，確保用戶取得最新資源
-const CACHE_NAME = 'equipment-inspection-v2';
+const CACHE_NAME = 'equipment-inspection-v3';
 const STATIC_ASSETS = [
   './',
-  './index.html',
   './manifest.json',
 ];
 
@@ -149,7 +148,6 @@ async function servePhoto(request) {
  */
 function isStaticAsset(path) {
   const assets = [
-    '/index.html',
     '/manifest.json',
     '/sw.js'
   ];
