@@ -1028,7 +1028,7 @@ function openDB() {
         db.createObjectStore('appSettings', { keyPath: 'key' });
       }
       // [CFO] 多用戶預留欄位：升版到 v2 時補上索引（既有 store 不會重新執行 createObjectStore）
-      if (oldVersion < 2) {
+      if (oldVersion === 1) {
         const photoStore = e.target.transaction.objectStore('photoRecords');
         if (!photoStore.indexNames.contains('userId')) {
           photoStore.createIndex('userId', 'userId', { unique: false });
