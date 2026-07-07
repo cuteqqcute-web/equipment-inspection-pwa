@@ -8,12 +8,11 @@
    ============================================================ */
 
 // [CFO] 低維護：每次修改 sw.js 時遞增此版本號，確保用戶取得最新資源
-const CACHE_NAME = 'equipment-inspection-v1';
+const CACHE_NAME = 'equipment-inspection-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './devices.json?_t=1'
 ];
 
 // ===== 安裝階段：預載靜態資源 =====
@@ -152,14 +151,12 @@ function isStaticAsset(path) {
   const assets = [
     '/index.html',
     '/manifest.json',
-    '/devices.json',
     '/sw.js'
   ];
   // 直接比對或開頭比對
   return assets.some(asset =>
     path === asset ||
-    path.endsWith(asset) ||
-    (asset.endsWith('.json') && path.includes('devices.json'))
+    path.endsWith(asset)
   );
 }
 
